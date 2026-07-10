@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Política de Privacidade — Polypodium</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+      line-height: 1.65;
+      max-width: 46rem;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+      color: #24292f;
+      background: #ffffff;
+    }
+    h1 { font-size: 1.7rem; margin-bottom: .25rem; }
+    h2 { font-size: 1.15rem; margin-top: 2rem; }
+    .meta { color: #6a737d; font-size: .9rem; margin-top: 0; }
+    a { color: #1a7f37; }
+    @media (prefers-color-scheme: dark) {
+      body { color: #e6edf3; background: #0d1117; }
+      .meta { color: #8b949e; }
+      a { color: #56d364; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Política de Privacidade — Polypodium</h1>
+  <p class="meta">Última atualização: 9 de julho de 2026 · <a href="privacy.html">English version</a></p>
+
+  <p><strong>Resumo: o desenvolvedor do Polypodium não coleta, não armazena e não tem acesso a nenhum dado seu.</strong>
+  O Polypodium é um aplicativo <em>offline-first</em> de gerenciamento de coleções de plantas. Todos os dados
+  ficam no seu aparelho e, opcionalmente, em um servidor que <em>você mesmo</em> escolhe e opera. O app não contém
+  anúncios, análises de uso (analytics) nem rastreadores de qualquer tipo.</p>
+
+  <h2>1. Dados armazenados no aparelho</h2>
+  <p>Tudo o que você cadastra no app — plantas, espécies, solos, localizações, entradas de diário, fotos e
+  lembretes de rega — é gravado em um banco de dados local, no seu próprio aparelho. Nada disso é transmitido
+  ao desenvolvedor.</p>
+
+  <h2>2. Localização</h2>
+  <p>O app pede permissão de localização apenas quando você cadastra ou edita uma localização de plantas e
+  opta por usar a posição atual do aparelho para preencher as coordenadas. A localização não é acessada em
+  segundo plano nem usada para rastreamento; as coordenadas obtidas ficam armazenadas somente no seu aparelho
+  (e no seu servidor, se você configurar a sincronização descrita abaixo).</p>
+
+  <h2>3. Fotos e câmera</h2>
+  <p>Você pode anexar fotos a registros de plantas e solos, escolhendo imagens da galeria ou tirando fotos com
+  a câmera. As imagens ficam armazenadas no aparelho (e no seu servidor, se você configurar a sincronização).
+  O app não acessa outras fotos além das que você selecionar.</p>
+
+  <h2>4. Sincronização opcional com servidor próprio (self-hosted)</h2>
+  <p>O Polypodium permite, opcionalmente, sincronizar seus dados com um servidor Polypodium instalado e operado
+  por você (ou por alguém da sua confiança). Nesse caso:</p>
+  <ul>
+    <li>Seus dados e fotos são enviados <strong>exclusivamente ao servidor que você configurou</strong> — nunca ao desenvolvedor, que não opera nenhum servidor e não tem acesso aos seus dados.</li>
+    <li>As credenciais da conta (e-mail e senha) servem apenas para autenticar nesse servidor. A senha é armazenada no servidor de forma protegida (hash bcrypt), nunca em texto puro.</li>
+    <li>Quem opera o servidor é o responsável pelos dados armazenados nele, incluindo backups e exclusão de contas.</li>
+  </ul>
+  <p>Se você não configurar nenhum servidor, o app funciona 100% offline e nenhum dado sai do aparelho.</p>
+
+  <h2>5. Notificações</h2>
+  <p>Os lembretes de rega usam notificações locais, agendadas no próprio aparelho. Nenhum serviço externo de
+  notificações é utilizado.</p>
+
+  <h2>6. Exclusão de dados</h2>
+  <p>Para remover seus dados locais, exclua-os dentro do app ou desinstale o aplicativo. Dados sincronizados
+  com um servidor próprio podem ser removidos pelo administrador desse servidor.</p>
+
+  <h2>7. Crianças</h2>
+  <p>O aplicativo não é direcionado a crianças e, como descrito acima, não coleta dados pessoais de nenhum usuário.</p>
+
+  <h2>8. Alterações nesta política</h2>
+  <p>Esta política pode ser atualizada para refletir mudanças no aplicativo. A versão vigente estará sempre
+  disponível nesta página, com a data de atualização indicada no topo.</p>
+
+  <h2>9. Contato</h2>
+  <p>Dúvidas sobre esta política podem ser enviadas para
+  <a href="mailto:informatica@encel.com.br">informatica@encel.com.br</a>.</p>
+</body>
+</html>
