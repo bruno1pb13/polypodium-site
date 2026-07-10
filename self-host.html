@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Servidor próprio — Polypodium</title>
+  <meta name="description" content="Guia passo a passo para hospedar o seu próprio servidor de sincronização do Polypodium com Docker: instalação, HTTPS com Let's Encrypt, primeira conta de administrador e backups.">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <style>
+    /* ---------- Identidade visual (mesma do index.html) ---------- */
+    @font-face {
+      font-family: "Cormorant Garamond";
+      src: url("assets/fonts/CormorantGaramond-VariableFont_wght.ttf") format("truetype-variations");
+      font-weight: 300 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Cormorant Garamond";
+      src: url("assets/fonts/CormorantGaramond-Italic-VariableFont_wght.ttf") format("truetype-variations");
+      font-weight: 300 700;
+      font-style: italic;
+      font-display: swap;
+    }
+
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f7f0;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-solid: #ffffff;
+      --border: rgba(61, 90, 62, 0.14);
+      --text: #22301f;
+      --text-muted: #5c6b57;
+      --primary: #3d5a3e;
+      --primary-hover: #2f472f;
+      --on-primary: #f4f7f0;
+      --accent: #4caf50;
+      --chip-bg: rgba(76, 175, 80, 0.12);
+      --code-bg: rgba(34, 48, 31, 0.06);
+      --code-block-bg: #1d271b;
+      --code-block-text: #dce6d8;
+      --shadow: 0 8px 28px rgba(45, 66, 44, 0.10);
+      --radius: 16px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #131a12;
+        --surface: rgba(30, 40, 28, 0.66);
+        --surface-solid: #1d271b;
+        --border: rgba(168, 199, 165, 0.14);
+        --text: #e4ece0;
+        --text-muted: #a3b39d;
+        --primary: #8fbc8f;
+        --primary-hover: #a7cda7;
+        --on-primary: #17230f;
+        --accent: #6fcf73;
+        --chip-bg: rgba(111, 207, 115, 0.14);
+        --code-bg: rgba(228, 236, 224, 0.08);
+        --code-block-bg: #101710;
+        --code-block-text: #d5e2d0;
+        --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+      line-height: 1.65;
+      color: var(--text);
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("assets/background.png") center / cover no-repeat;
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: -1;
+    }
+    @media (prefers-color-scheme: dark) {
+      body::before { opacity: 0.08; filter: invert(1); }
+    }
+
+    .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
+
+    h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; line-height: 1.2; }
+
+    a { color: var(--primary); }
+
+    /* ---------- Navegação ---------- */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    nav { display: flex; align-items: center; gap: 1.5rem; padding: 0.65rem 0; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      margin-right: auto;
+    }
+    .brand img { height: 2.1rem; width: auto; }
+    nav .links { display: flex; gap: 1.25rem; }
+    nav .links a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; }
+    nav .links a:hover { color: var(--primary); }
+    @media (max-width: 640px) { nav .links a:not(.nav-download) { display: none; } }
+    .nav-download {
+      color: var(--on-primary) !important;
+      background: var(--primary);
+      padding: 0.35rem 0.95rem;
+      border-radius: 999px;
+    }
+    .nav-download:hover { background: var(--primary-hover); }
+
+    /* ---------- Layout do guia ---------- */
+    .doc { max-width: 46rem; margin: 0 auto; padding: 3.5rem 0 4rem; }
+    .doc > h1 { font-size: clamp(2.2rem, 5vw, 3rem); margin-bottom: 0.5rem; }
+    .doc .lead { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2.5rem; }
+
+    .doc h2 {
+      font-size: 1.75rem;
+      margin: 2.75rem 0 0.75rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.65rem;
+    }
+    .doc h2 .step {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.1rem;
+      height: 2.1rem;
+      border-radius: 50%;
+      background: var(--chip-bg);
+      color: var(--accent);
+      font-family: -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      transform: translateY(0.3rem);
+    }
+    .doc h3 { font-size: 1.3rem; margin: 1.75rem 0 0.5rem; }
+    .doc p, .doc ul, .doc ol { margin-bottom: 1rem; }
+    .doc ul, .doc ol { padding-left: 1.4rem; }
+    .doc li { margin-bottom: 0.35rem; }
+    .doc li p { margin-bottom: 0.35rem; }
+
+    code {
+      font-family: ui-monospace, "Cascadia Code", Consolas, "Liberation Mono", monospace;
+      font-size: 0.88em;
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 0.1em 0.35em;
+    }
+    pre {
+      background: var(--code-block-bg);
+      color: var(--code-block-text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.15rem;
+      overflow-x: auto;
+      margin: 0.75rem 0 1.25rem;
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+    pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+    pre .cm { color: #8aa383; } /* comentários dentro dos blocos */
+
+    .callout {
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      margin: 0 0 1.25rem;
+      font-size: 0.95rem;
+    }
+    .callout strong:first-child { color: var(--accent); }
+
+    .doc table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1.25rem;
+      font-size: 0.92rem;
+    }
+    .doc th, .doc td {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .doc th { font-weight: 600; }
+    .table-scroll { overflow-x: auto; }
+
+    /* ---------- Rodapé ---------- */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 0 2.5rem;
+      margin-top: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    footer .cols { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between; align-items: center; }
+    footer ul { list-style: none; display: flex; flex-wrap: wrap; gap: 1.25rem; }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <nav>
+        <a class="brand" href="index.html">
+          <img src="assets/logo.png" alt="Logo do Polypodium — uma samambaia estilizada">
+          Polypodium
+        </a>
+        <div class="links">
+          <a href="index.html#recursos">Recursos</a>
+          <a href="index.html#capturas">Capturas</a>
+          <a href="index.html#selfhost">Servidor próprio</a>
+          <a class="nav-download" href="index.html#download">Download</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <article class="doc">
+      <h1>Seu próprio servidor de sincronização</h1>
+      <p class="lead">
+        O Polypodium funciona 100% offline — o servidor só é necessário se você quiser
+        sincronizar sua coleção entre vários aparelhos. Este guia mostra como subir o
+        servidor com Docker em poucos minutos, sem precisar compilar nada.
+      </p>
+
+      <h2>O que você vai precisar</h2>
+      <ul>
+        <li>Uma máquina que fique ligada quando você quiser sincronizar: um VPS, um mini-PC,
+            um NAS ou até um computador na sua rede local.</li>
+        <li><a href="https://docs.docker.com/engine/install/" rel="noopener">Docker</a> com o
+            plugin Docker Compose (já incluído nas instalações atuais).</li>
+        <li>Opcional, mas recomendado para acesso pela internet: um domínio (ou subdomínio)
+            apontando para a máquina, para ativar HTTPS com Let's Encrypt.</li>
+      </ul>
+      <p>Não é preciso clonar repositório nem instalar Dart: o servidor é distribuído como
+         imagem Docker pronta em <code>ghcr.io/bruno1pb13/polypodium_server</code>.</p>
+
+      <h2><span class="step">1</span> Criar os arquivos de configuração</h2>
+      <p>Crie uma pasta (por exemplo <code>polypodium-server</code>) e, dentro dela, um arquivo
+         <code>docker-compose.yml</code> com o conteúdo abaixo. Ele sobe dois contêineres: o
+         banco PostgreSQL e o servidor do Polypodium.</p>
+
+<pre><code>services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: polypodium
+      POSTGRES_USER: polypodium
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U polypodium -d polypodium"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    image: ghcr.io/bruno1pb13/polypodium_server:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgresql://polypodium:${DB_PASSWORD}@db/polypodium
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      APP_ENV: production
+      DB_SSL: "false"
+      <span class="cm"># O HTTPS fica a cargo do proxy reverso (passo 3).</span>
+      BEHIND_PROXY: "true"
+      REGISTRATION_TOKEN: ${REGISTRATION_TOKEN:-}
+      PHOTOS_DIR: /photos
+    volumes:
+      - photos_data:/photos
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
+  photos_data:</code></pre>
+
+      <p>Na mesma pasta, crie um arquivo <code>.env</code> com os segredos do seu servidor:</p>
+
+<pre><code><span class="cm"># Senha do banco de dados (usada só internamente, entre os contêineres)</span>
+DB_PASSWORD=troque-por-uma-senha-forte
+
+<span class="cm"># Chave que assina os tokens de login. Mínimo de 32 caracteres.</span>
+<span class="cm"># Gere uma com:  openssl rand -base64 48</span>
+JWT_SECRET=troque-por-uma-chave-aleatoria-bem-longa
+
+<span class="cm"># Opcional, recomendado se o servidor ficar exposto na internet:</span>
+<span class="cm"># protege a criação da primeira conta (veja o passo 4).</span>
+REGISTRATION_TOKEN=</code></pre>
+
+      <div class="callout">
+        <strong>Importante:</strong> o servidor se recusa a iniciar em produção se o
+        <code>JWT_SECRET</code> estiver ausente ou tiver menos de 32 caracteres. Guarde o
+        <code>.env</code> em local seguro — quem tem esses valores tem acesso ao servidor.
+      </div>
+
+      <h2><span class="step">2</span> Subir o servidor</h2>
+      <p>Ainda na pasta criada, execute:</p>
+
+<pre><code>docker compose up -d</code></pre>
+
+      <p>Na primeira execução o Docker baixa as imagens e o servidor cria as tabelas do banco
+         automaticamente. Para conferir que está tudo no ar:</p>
+
+<pre><code>curl http://localhost:8080/api/v1/health</code></pre>
+
+      <p>Se a resposta chegar com status 200, o servidor está funcionando. Para acompanhar os
+         logs a qualquer momento: <code>docker compose logs -f server</code>.</p>
+
+      <div class="callout">
+        <strong>Só na rede local?</strong> Se o servidor vai ser acessado apenas dentro da sua
+        casa (ex.: <code>http://192.168.0.10:8080</code>), você já pode pular para o passo 4.
+        O HTTPS do passo 3 é essencial quando o servidor fica acessível pela internet.
+      </div>
+
+      <h2><span class="step">3</span> HTTPS com proxy reverso (Let's Encrypt)</h2>
+      <p>A configuração acima (<code>BEHIND_PROXY: "true"</code>) espera que um proxy reverso
+         na frente do servidor cuide do HTTPS. A forma mais simples é usar o
+         <a href="https://caddyserver.com/" rel="noopener">Caddy</a>, que obtém e renova
+         certificados Let's Encrypt sozinho. Com o domínio já apontando para a máquina,
+         instale o Caddy e use um <code>Caddyfile</code> de duas linhas:</p>
+
+<pre><code>plantas.seudominio.com {
+    reverse_proxy 127.0.0.1:8080
+}</code></pre>
+
+      <p>Pronto: o app passa a acessar <code>https://plantas.seudominio.com</code>. Alternativas
+         que funcionam igualmente bem, com o mesmo <code>BEHIND_PROXY=true</code>:</p>
+      <ul>
+        <li><a href="https://nginxproxymanager.com/" rel="noopener">Nginx Proxy Manager</a> —
+            interface gráfica para gerenciar proxies e certificados Let's Encrypt;</li>
+        <li>Nginx ou Traefik, se você já usa um deles no seu servidor;</li>
+        <li>Um túnel como o Cloudflare Tunnel, que também termina o TLS por você.</li>
+      </ul>
+      <p>Nesse arranjo, deixe a porta 8080 fechada para a internet no firewall — só o proxy
+         (portas 80/443) precisa ficar exposto.</p>
+
+      <h3>Alternativa: o próprio servidor termina o HTTPS</h3>
+      <p>Se preferir não usar proxy, o servidor pode servir HTTPS diretamente. No
+         <code>docker-compose.yml</code>, troque <code>BEHIND_PROXY: "true"</code> por:</p>
+
+<pre><code>      BEHIND_PROXY: "false"
+      SSL_CERT_PATH: /certs/fullchain.pem
+      SSL_KEY_PATH: /certs/privkey.pem</code></pre>
+
+      <p>e monte a pasta dos certificados no contêiner (em <code>volumes:</code> do serviço
+         <code>server</code>):</p>
+
+<pre><code>      - /caminho/para/seus/certs:/certs:ro</code></pre>
+
+      <p>Nesse caso a renovação dos certificados (ex.: via <code>certbot</code>) fica por sua
+         conta. Em produção o servidor exige uma das duas opções — proxy reverso ou
+         certificados — e se recusa a iniciar servindo HTTP puro na internet.</p>
+
+      <h2><span class="step">4</span> Criar a primeira conta (administrador)</h2>
+      <p>A primeira conta criada em um servidor novo vira automaticamente a conta de
+         <strong>administrador</strong>. Depois dela, o cadastro público se fecha: novas contas
+         só podem ser criadas pelo administrador, dentro do app.</p>
+
+      <h3>Sem <code>REGISTRATION_TOKEN</code> (rede local)</h3>
+      <ol>
+        <li>No app, abra <strong>Configurações → Servidor</strong> (workspaces) e adicione um
+            workspace remoto com a URL do seu servidor.</li>
+        <li>O app detecta que o servidor ainda não tem contas e oferece a criação da primeira —
+            informe e-mail e senha (mínimo de 8 caracteres) e pronto: você é o admin.</li>
+      </ol>
+
+      <h3>Com <code>REGISTRATION_TOKEN</code> (recomendado na internet)</h3>
+      <p>Se você definiu <code>REGISTRATION_TOKEN</code> no <code>.env</code>, a primeira conta
+         precisa apresentar esse token — assim ninguém "rouba" o posto de admin chegando
+         primeiro no seu servidor recém-instalado. Crie a conta com uma chamada direta à API:</p>
+
+<pre><code>curl -X POST https://plantas.seudominio.com/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "voce@exemplo.com",
+    "password": "sua-senha-com-8+-caracteres",
+    "registrationToken": "o-valor-do-seu-REGISTRATION_TOKEN"
+  }'</code></pre>
+
+      <p>Depois disso, basta fazer <strong>login normalmente pelo app</strong> com o e-mail e a
+         senha criados. As próximas contas (família, amigos) você cria pela tela de
+         administração do servidor, dentro do próprio app.</p>
+
+      <h2><span class="step">5</span> Backups</h2>
+      <p>Seus dados vivem em dois lugares: o banco PostgreSQL (plantas, espécies, diário…) e o
+         volume de fotos. Faça backup dos dois periodicamente.</p>
+
+      <h3>Banco de dados (<code>pg_dump</code>)</h3>
+
+<pre><code>docker compose exec db pg_dump -U polypodium -d polypodium \
+  &gt; backup-polypodium-$(date +%F).sql</code></pre>
+
+      <p>Para restaurar em um servidor recém-criado (com o banco ainda vazio):</p>
+
+<pre><code>docker compose exec -T db psql -U polypodium -d polypodium \
+  &lt; backup-polypodium-2026-07-10.sql</code></pre>
+
+      <h3>Fotos</h3>
+
+<pre><code>docker compose cp server:/photos ./backup-fotos-$(date +%F)</code></pre>
+
+      <p>Automatize com um <code>cron</code> semanal e guarde as cópias em outra máquina ou em
+         um serviço de armazenamento — um backup que mora no mesmo disco do servidor não
+         protege contra a falha desse disco.</p>
+
+      <h2>Atualizando o servidor</h2>
+      <p>Para atualizar para a versão mais recente da imagem:</p>
+
+<pre><code>docker compose pull
+docker compose up -d</code></pre>
+
+      <p>As migrações do banco rodam automaticamente na inicialização — não há passo manual.</p>
+
+      <h2>Referência: variáveis de ambiente</h2>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Variável</th><th>Para que serve</th></tr>
+          <tr><td><code>DB_PASSWORD</code></td><td>Senha do PostgreSQL (obrigatória).</td></tr>
+          <tr><td><code>JWT_SECRET</code></td><td>Assina os tokens de login. Obrigatória, mínimo de 32 caracteres, única por servidor.</td></tr>
+          <tr><td><code>REGISTRATION_TOKEN</code></td><td>Opcional. Quando definida, a criação da primeira conta exige esse token (passo 4).</td></tr>
+          <tr><td><code>BEHIND_PROXY</code></td><td><code>true</code> quando o HTTPS termina em um proxy reverso; senão, informe <code>SSL_CERT_PATH</code>/<code>SSL_KEY_PATH</code>.</td></tr>
+          <tr><td><code>SSL_CERT_PATH</code> / <code>SSL_KEY_PATH</code></td><td>Certificado e chave para o servidor servir HTTPS diretamente.</td></tr>
+          <tr><td><code>ALLOWED_ORIGINS</code></td><td>CORS: <code>*</code> ou lista de origens separadas por vírgula. Padrão: <code>*</code>.</td></tr>
+          <tr><td><code>AUTH_RATE_LIMIT_MAX</code> / <code>AUTH_RATE_LIMIT_WINDOW</code></td><td>Limite contra força bruta no login. Padrão: 20 requisições / 300 s por IP.</td></tr>
+          <tr><td><code>MAX_JSON_BODY_BYTES</code> / <code>MAX_PHOTO_BYTES</code></td><td>Tamanho máximo de requisições e fotos. Padrão: 1 MB / 15 MB.</td></tr>
+        </table>
+      </div>
+
+      <p>Dúvidas ou problemas? Abra uma issue no
+         <a href="https://github.com/bruno1pb13/Polypodium_server" rel="noopener">repositório do servidor</a>
+         ou escreva para <a href="mailto:bruno1pb13@gmail.com">bruno1pb13@gmail.com</a>.</p>
+    </article>
+  </main>
+
+  <footer>
+    <div class="wrap cols">
+      <span>© 2026 Polypodium · <a href="mailto:bruno1pb13@gmail.com">bruno1pb13@gmail.com</a></span>
+      <ul>
+        <li><a href="privacidade.html">Política de Privacidade</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="https://github.com/bruno1pb13/Polypodium" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+</body>
+</html>
