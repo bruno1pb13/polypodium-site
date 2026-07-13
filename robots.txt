@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bruno1pb13.github.io/polypodium-site/sitemap.xml
