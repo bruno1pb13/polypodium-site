@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Self-hosting — Polypodium</title>
+  <meta name="description" content="Step-by-step guide to hosting your own Polypodium sync server with Docker: installation, HTTPS with Let's Encrypt, first admin account and backups.">
+  <link rel="canonical" href="https://polypodium.com.br/self-host.en.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://polypodium.com.br/self-host.html">
+  <link rel="alternate" hreflang="en" href="https://polypodium.com.br/self-host.en.html">
+  <meta name="theme-color" content="#3d5a3e">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Open Graph / social -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Polypodium">
+  <meta property="og:title" content="Self-hosting — Polypodium">
+  <meta property="og:description" content="Step-by-step guide to hosting your own Polypodium sync server with Docker.">
+  <meta property="og:url" content="https://polypodium.com.br/self-host.en.html">
+  <meta property="og:image" content="https://polypodium.com.br/assets/logo.png">
+  <meta property="og:locale" content="en_US">
+  <style>
+    /* ---------- Identidade visual (mesma do index.html) ---------- */
+    @font-face {
+      font-family: "Cormorant Garamond";
+      src: url("assets/fonts/CormorantGaramond-VariableFont_wght.ttf") format("truetype-variations");
+      font-weight: 300 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Cormorant Garamond";
+      src: url("assets/fonts/CormorantGaramond-Italic-VariableFont_wght.ttf") format("truetype-variations");
+      font-weight: 300 700;
+      font-style: italic;
+      font-display: swap;
+    }
+
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f7f0;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-solid: #ffffff;
+      --border: rgba(61, 90, 62, 0.14);
+      --text: #22301f;
+      --text-muted: #5c6b57;
+      --primary: #3d5a3e;
+      --primary-hover: #2f472f;
+      --on-primary: #f4f7f0;
+      --accent: #4caf50;
+      --chip-bg: rgba(76, 175, 80, 0.12);
+      --code-bg: rgba(34, 48, 31, 0.06);
+      --code-block-bg: #1d271b;
+      --code-block-text: #dce6d8;
+      --shadow: 0 8px 28px rgba(45, 66, 44, 0.10);
+      --radius: 16px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #131a12;
+        --surface: rgba(30, 40, 28, 0.66);
+        --surface-solid: #1d271b;
+        --border: rgba(168, 199, 165, 0.14);
+        --text: #e4ece0;
+        --text-muted: #a3b39d;
+        --primary: #8fbc8f;
+        --primary-hover: #a7cda7;
+        --on-primary: #17230f;
+        --accent: #6fcf73;
+        --chip-bg: rgba(111, 207, 115, 0.14);
+        --code-bg: rgba(228, 236, 224, 0.08);
+        --code-block-bg: #101710;
+        --code-block-text: #d5e2d0;
+        --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+      line-height: 1.65;
+      color: var(--text);
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("assets/background.png") center / cover no-repeat;
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: -1;
+    }
+    @media (prefers-color-scheme: dark) {
+      body::before { opacity: 0.08; filter: invert(1); }
+    }
+
+    .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
+
+    h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; line-height: 1.2; }
+
+    a { color: var(--primary); }
+
+    /* ---------- Navegação ---------- */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    nav { display: flex; align-items: center; gap: 1.5rem; padding: 0.65rem 0; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      margin-right: auto;
+    }
+    .brand img { height: 2.1rem; width: auto; }
+    nav .links { display: flex; align-items: center; gap: 1.25rem; }
+    nav .links a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; }
+    nav .links a:hover { color: var(--primary); }
+    @media (max-width: 640px) { nav .links a:not(.nav-download):not(.lang) { display: none; } }
+    .nav-download {
+      color: var(--on-primary) !important;
+      background: var(--primary);
+      padding: 0.35rem 0.95rem;
+      border-radius: 999px;
+    }
+    .nav-download:hover { background: var(--primary-hover); }
+
+    /* ---------- Layout do guia ---------- */
+    .doc { max-width: 46rem; margin: 0 auto; padding: 3.5rem 0 4rem; }
+    .doc > h1 { font-size: clamp(2.2rem, 5vw, 3rem); margin-bottom: 0.5rem; }
+    .doc .lead { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2.5rem; }
+
+    .doc h2 {
+      font-size: 1.75rem;
+      margin: 2.75rem 0 0.75rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.65rem;
+    }
+    .doc h2 .step {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.1rem;
+      height: 2.1rem;
+      border-radius: 50%;
+      background: var(--chip-bg);
+      color: var(--accent);
+      font-family: -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      transform: translateY(0.3rem);
+    }
+    .doc h3 { font-size: 1.3rem; margin: 1.75rem 0 0.5rem; }
+    .doc p, .doc ul, .doc ol { margin-bottom: 1rem; }
+    .doc ul, .doc ol { padding-left: 1.4rem; }
+    .doc li { margin-bottom: 0.35rem; }
+    .doc li p { margin-bottom: 0.35rem; }
+
+    code {
+      font-family: ui-monospace, "Cascadia Code", Consolas, "Liberation Mono", monospace;
+      font-size: 0.88em;
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 0.1em 0.35em;
+    }
+    pre {
+      background: var(--code-block-bg);
+      color: var(--code-block-text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.15rem;
+      overflow-x: auto;
+      margin: 0.75rem 0 1.25rem;
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+    pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+    pre .cm { color: #8aa383; } /* comentários dentro dos blocos */
+
+    .callout {
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      margin: 0 0 1.25rem;
+      font-size: 0.95rem;
+    }
+    .callout strong:first-child { color: var(--accent); }
+
+    .doc table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1.25rem;
+      font-size: 0.92rem;
+    }
+    .doc th, .doc td {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .doc th { font-weight: 600; }
+    .table-scroll { overflow-x: auto; }
+
+    /* ---------- Rodapé ---------- */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 0 2.5rem;
+      margin-top: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    footer .cols { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between; align-items: center; }
+    footer ul { list-style: none; display: flex; flex-wrap: wrap; gap: 1.25rem; }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <nav>
+        <a class="brand" href="index.en.html">
+          <img src="assets/logo.png" alt="Polypodium logo — a stylized fern">
+          Polypodium
+        </a>
+        <div class="links">
+          <a href="index.en.html#features">Features</a>
+          <a href="index.en.html#screenshots">Screenshots</a>
+          <a href="index.en.html#selfhost">Self-hosting</a>
+          <a class="lang" href="self-host.html" lang="pt-BR" hreflang="pt-BR" title="Versão em português">PT</a>
+          <a class="nav-download" href="index.en.html#download">Download</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <article class="doc">
+      <h1>Your own sync server</h1>
+      <p class="lead">
+        Polypodium works 100% offline — the server is only needed if you want to
+        sync your collection across multiple devices. This guide shows how to get
+        the server running with Docker in a few minutes, no compiling required.
+      </p>
+
+      <h2>What you'll need</h2>
+      <ul>
+        <li>A machine that stays on whenever you want to sync: a VPS, a mini PC,
+            a NAS, or even a computer on your local network.</li>
+        <li><a href="https://docs.docker.com/engine/install/" rel="noopener">Docker</a> with the
+            Docker Compose plugin (included in current installations).</li>
+        <li>Optional, but recommended for access over the internet: a domain (or subdomain)
+            pointing at the machine, to enable HTTPS with Let's Encrypt.</li>
+      </ul>
+      <p>No need to clone a repository or install Dart: the server ships as a ready-made
+         Docker image at <code>ghcr.io/bruno1pb13/polypodium_server</code>.</p>
+
+      <h2><span class="step">1</span> Create the configuration files</h2>
+      <p>Create a folder (for example <code>polypodium-server</code>) and, inside it, a
+         <code>docker-compose.yml</code> file with the contents below. It starts two
+         containers: the PostgreSQL database and the Polypodium server.</p>
+
+<pre><code>services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: polypodium
+      POSTGRES_USER: polypodium
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U polypodium -d polypodium"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    image: ghcr.io/bruno1pb13/polypodium_server:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgresql://polypodium:${DB_PASSWORD}@db/polypodium
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      APP_ENV: production
+      DB_SSL: "false"
+      <span class="cm"># HTTPS is handled by the reverse proxy (step 3).</span>
+      BEHIND_PROXY: "true"
+      REGISTRATION_TOKEN: ${REGISTRATION_TOKEN:-}
+      PHOTOS_DIR: /photos
+    volumes:
+      - photos_data:/photos
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
+  photos_data:</code></pre>
+
+      <p>In the same folder, create a <code>.env</code> file with your server's secrets:</p>
+
+<pre><code><span class="cm"># Database password (used only internally, between the containers)</span>
+DB_PASSWORD=replace-with-a-strong-password
+
+<span class="cm"># Key that signs the login tokens. Minimum of 32 characters.</span>
+<span class="cm"># Generate one with:  openssl rand -base64 48</span>
+JWT_SECRET=replace-with-a-long-random-key
+
+<span class="cm"># Optional, recommended if the server is exposed to the internet:</span>
+<span class="cm"># protects the creation of the first account (see step 4).</span>
+REGISTRATION_TOKEN=</code></pre>
+
+      <div class="callout">
+        <strong>Important:</strong> in production, the server refuses to start if
+        <code>JWT_SECRET</code> is missing or shorter than 32 characters. Keep the
+        <code>.env</code> file somewhere safe — whoever has these values has access to the server.
+      </div>
+
+      <h2><span class="step">2</span> Start the server</h2>
+      <p>Still inside the folder you created, run:</p>
+
+<pre><code>docker compose up -d</code></pre>
+
+      <p>On the first run Docker downloads the images and the server creates the database
+         tables automatically. To check that everything is up:</p>
+
+<pre><code>curl http://localhost:8080/api/v1/health</code></pre>
+
+      <p>If the response comes back with status 200, the server is working. To follow the
+         logs at any time: <code>docker compose logs -f server</code>.</p>
+
+      <div class="callout">
+        <strong>Local network only?</strong> If the server will only be reached from inside
+        your home (e.g. <code>http://192.168.0.10:8080</code>), you can skip straight to step 4.
+        The HTTPS setup in step 3 is essential when the server is reachable from the internet.
+      </div>
+
+      <h2><span class="step">3</span> HTTPS with a reverse proxy (Let's Encrypt)</h2>
+      <p>The configuration above (<code>BEHIND_PROXY: "true"</code>) expects a reverse proxy
+         in front of the server to handle HTTPS. The simplest option is
+         <a href="https://caddyserver.com/" rel="noopener">Caddy</a>, which obtains and renews
+         Let's Encrypt certificates on its own. With your domain already pointing at the
+         machine, install Caddy and use a two-line <code>Caddyfile</code>:</p>
+
+<pre><code>plants.yourdomain.com {
+    reverse_proxy 127.0.0.1:8080
+}</code></pre>
+
+      <p>Done: the app can now reach <code>https://plants.yourdomain.com</code>. Alternatives
+         that work just as well, with the same <code>BEHIND_PROXY=true</code>:</p>
+      <ul>
+        <li><a href="https://nginxproxymanager.com/" rel="noopener">Nginx Proxy Manager</a> —
+            a web UI for managing proxies and Let's Encrypt certificates;</li>
+        <li>Nginx or Traefik, if you already run one of them on your server;</li>
+        <li>A tunnel such as Cloudflare Tunnel, which also terminates TLS for you.</li>
+      </ul>
+      <p>In this setup, keep port 8080 closed to the internet in your firewall — only the
+         proxy (ports 80/443) needs to be exposed.</p>
+
+      <h3>Alternative: the server terminates HTTPS itself</h3>
+      <p>If you'd rather not use a proxy, the server can serve HTTPS directly. In
+         <code>docker-compose.yml</code>, replace <code>BEHIND_PROXY: "true"</code> with:</p>
+
+<pre><code>      BEHIND_PROXY: "false"
+      SSL_CERT_PATH: /certs/fullchain.pem
+      SSL_KEY_PATH: /certs/privkey.pem</code></pre>
+
+      <p>and mount the certificates folder into the container (under <code>volumes:</code> of
+         the <code>server</code> service):</p>
+
+<pre><code>      - /path/to/your/certs:/certs:ro</code></pre>
+
+      <p>In this case, renewing the certificates (e.g. via <code>certbot</code>) is up to you.
+         In production the server requires one of the two options — reverse proxy or
+         certificates — and refuses to start serving plain HTTP on the internet.</p>
+
+      <h2><span class="step">4</span> Create the first account (administrator)</h2>
+      <p>The first account created on a fresh server automatically becomes the
+         <strong>administrator</strong> account. After that, public registration closes: new
+         accounts can only be created by the administrator, inside the app.</p>
+
+      <h3>Without <code>REGISTRATION_TOKEN</code> (local network)</h3>
+      <ol>
+        <li>In the app, open <strong>Settings → Server</strong> (workspaces) and add a remote
+            workspace with your server's URL.</li>
+        <li>The app detects that the server has no accounts yet and offers to create the first
+            one — enter an e-mail and password (minimum of 8 characters) and that's it:
+            you're the admin.</li>
+      </ol>
+
+      <h3>With <code>REGISTRATION_TOKEN</code> (recommended on the internet)</h3>
+      <p>If you set <code>REGISTRATION_TOKEN</code> in <code>.env</code>, the first account must
+         present that token — so nobody "steals" the admin seat by getting to your freshly
+         installed server first. Create the account with a direct API call:</p>
+
+<pre><code>curl -X POST https://plants.yourdomain.com/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "you@example.com",
+    "password": "your-8+-character-password",
+    "registrationToken": "the-value-of-your-REGISTRATION_TOKEN"
+  }'</code></pre>
+
+      <p>After that, simply <strong>log in normally through the app</strong> with the e-mail and
+         password you created. Further accounts (family, friends) are created from the server
+         administration screen, inside the app itself.</p>
+
+      <h2><span class="step">5</span> Backups</h2>
+      <p>Your data lives in two places: the PostgreSQL database (plants, species, journal…) and
+         the photos volume. Back up both periodically.</p>
+
+      <h3>Database (<code>pg_dump</code>)</h3>
+
+<pre><code>docker compose exec db pg_dump -U polypodium -d polypodium \
+  &gt; backup-polypodium-$(date +%F).sql</code></pre>
+
+      <p>To restore onto a freshly created server (with the database still empty):</p>
+
+<pre><code>docker compose exec -T db psql -U polypodium -d polypodium \
+  &lt; backup-polypodium-2026-07-10.sql</code></pre>
+
+      <h3>Photos</h3>
+
+<pre><code>docker compose cp server:/photos ./photos-backup-$(date +%F)</code></pre>
+
+      <p>Automate it with a weekly <code>cron</code> job and keep the copies on another machine
+         or a storage service — a backup that lives on the same disk as the server doesn't
+         protect you from that disk failing.</p>
+
+      <h2>Updating the server</h2>
+      <p>To update to the latest image version:</p>
+
+<pre><code>docker compose pull
+docker compose up -d</code></pre>
+
+      <p>Database migrations run automatically at startup — there is no manual step.</p>
+
+      <h2>Reference: environment variables</h2>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Variable</th><th>What it's for</th></tr>
+          <tr><td><code>DB_PASSWORD</code></td><td>PostgreSQL password (required).</td></tr>
+          <tr><td><code>JWT_SECRET</code></td><td>Signs the login tokens. Required, minimum of 32 characters, unique per server.</td></tr>
+          <tr><td><code>REGISTRATION_TOKEN</code></td><td>Optional. When set, creating the first account requires this token (step 4).</td></tr>
+          <tr><td><code>BEHIND_PROXY</code></td><td><code>true</code> when HTTPS terminates at a reverse proxy; otherwise provide <code>SSL_CERT_PATH</code>/<code>SSL_KEY_PATH</code>.</td></tr>
+          <tr><td><code>SSL_CERT_PATH</code> / <code>SSL_KEY_PATH</code></td><td>Certificate and key for the server to serve HTTPS directly.</td></tr>
+          <tr><td><code>ALLOWED_ORIGINS</code></td><td>CORS: <code>*</code> or a comma-separated list of origins. Default: <code>*</code>.</td></tr>
+          <tr><td><code>AUTH_RATE_LIMIT_MAX</code> / <code>AUTH_RATE_LIMIT_WINDOW</code></td><td>Brute-force protection on login. Default: 20 requests / 300 s per IP.</td></tr>
+          <tr><td><code>MAX_JSON_BODY_BYTES</code> / <code>MAX_PHOTO_BYTES</code></td><td>Maximum request and photo sizes. Default: 1 MB / 15 MB.</td></tr>
+        </table>
+      </div>
+
+      <p>Questions or problems? Open an issue on the
+         <a href="https://github.com/bruno1pb13/Polypodium_server" rel="noopener">server repository</a>
+         or write to <a href="mailto:bruno1pb13@gmail.com">bruno1pb13@gmail.com</a>.</p>
+    </article>
+  </main>
+
+  <footer>
+    <div class="wrap cols">
+      <span>© 2026 Polypodium · <a href="mailto:bruno1pb13@gmail.com">bruno1pb13@gmail.com</a></span>
+      <ul>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="privacidade.html">Política de Privacidade</a></li>
+        <li><a href="https://github.com/bruno1pb13/Polypodium" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+
+</body>
+</html>
