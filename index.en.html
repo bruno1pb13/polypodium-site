@@ -3,49 +3,138 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Polypodium — Plant collection app (Android, Windows &amp; Linux)</title>
-  <meta name="description" content="Polypodium: a free, offline-first app to manage your plant collection, with a per-plant care journal, watering reminders, the Flora Brasil species database, and optional sync via your own self-hosted server. For Android, Windows and Linux.">
+  <title>Polypodium: plant care app with watering reminders</title>
+  <meta name="description" content="Free plant care app for houseplants and vegetable gardens: watering and fertilizing reminders, photo journal, care sheets and QR labels. Offline, no ads.">
   <link rel="canonical" href="https://polypodium.com.br/index.en.html">
   <link rel="alternate" hreflang="pt-BR" href="https://polypodium.com.br/">
   <link rel="alternate" hreflang="en" href="https://polypodium.com.br/index.en.html">
+  <link rel="alternate" hreflang="x-default" href="https://polypodium.com.br/">
   <meta name="theme-color" content="#3d5a3e">
-  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preload" as="image" href="assets/screen-detalhe.webp" type="image/webp">
 
   <!-- Open Graph / social -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Polypodium">
-  <meta property="og:title" content="Polypodium — Plant collection app">
-  <meta property="og:description" content="Free, offline-first app to manage your plant collection: care journal, watering reminders, Flora Brasil species database, and optional sync via your own self-hosted server.">
+  <meta property="og:title" content="Polypodium: plant care app with watering reminders">
+  <meta property="og:description" content="Photo journal, watering and fertilizing reminders, species care sheets and harvest tracking. Free, offline and ad-free. Android, Windows and Linux.">
   <meta property="og:url" content="https://polypodium.com.br/index.en.html">
-  <meta property="og:image" content="https://polypodium.com.br/assets/screen.png">
-  <meta property="og:image:alt" content="Polypodium screenshots: plant list, plant details and care journal">
+  <meta property="og:image" content="https://polypodium.com.br/assets/og-en.jpg">
+  <meta property="og:image:width" content="1024">
+  <meta property="og:image:height" content="500">
+  <meta property="og:image:alt" content="Polypodium: care for your plants, 100% offline">
   <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="pt_BR">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Polypodium — Plant collection app">
-  <meta name="twitter:description" content="Free, offline-first app for plant collections: journal, watering reminders, Flora Brasil database, and optional self-hosted sync.">
-  <meta name="twitter:image" content="https://polypodium.com.br/assets/screen.png">
+  <meta name="twitter:title" content="Polypodium: plant care app with watering reminders">
+  <meta name="twitter:description" content="Photo journal, watering and fertilizing reminders, species care sheets and harvest tracking. Free, offline and ad-free.">
+  <meta name="twitter:image" content="https://polypodium.com.br/assets/og-en.jpg">
 
   <!-- Structured data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Polypodium",
-    "url": "https://polypodium.com.br/index.en.html",
-    "image": "https://polypodium.com.br/assets/logo.png",
-    "description": "Free, offline-first app to manage plant collections, with a care journal, watering reminders, the Flora Brasil species database, and optional sync via a server hosted by the user.",
-    "applicationCategory": "LifestyleApplication",
-    "operatingSystem": "Android, Windows 10, Windows 11, Linux",
-    "inLanguage": "en",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "installUrl": "https://apps.microsoft.com/detail/9ngjqhv1jn76",
-    "sameAs": [
-      "https://apps.microsoft.com/detail/9ngjqhv1jn76",
-      "https://github.com/bruno1pb13/Polypodium"
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://polypodium.com.br/#website",
+        "name": "Polypodium",
+        "url": "https://polypodium.com.br/",
+        "inLanguage": "pt-BR"
+      },
+      {
+        "@type": "MobileApplication",
+        "@id": "https://polypodium.com.br/index.en.html#app",
+        "name": "Polypodium",
+        "alternateName": "Polypodium — plant care",
+        "url": "https://polypodium.com.br/index.en.html",
+        "image": "https://polypodium.com.br/assets/icon-512.png",
+        "screenshot": "https://polypodium.com.br/assets/screen.webp",
+        "description": "Free, offline plant care app for houseplants and vegetable gardens: photo journal, watering, fertilizing and pruning reminders, per-species care sheets with the Flora Brasil database, harvest and pesticide pre-harvest interval tracking, QR code labels and optional sync via your own server.",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Android, Windows 10, Windows 11, Linux",
+        "softwareVersion": "2.9.0",
+        "inLanguage": ["en", "pt-BR"],
+        "isAccessibleForFree": true,
+        "license": "https://opensource.org/licenses/MIT",
+        "featureList": [
+          "Per-plant care journal with multiple photos per entry",
+          "Watering, fertilizing and pruning reminders",
+          "Agenda with overdue, today's and this week's tasks",
+          "Species care sheet: light, humidity, toxicity and blooming",
+          "Built-in Flora Brasil species database",
+          "Harvest log and pesticide pre-harvest interval",
+          "Cuttings linked to their parent plant and repotting log",
+          "Printable QR code labels",
+          "Android home screen widget",
+          "Shared garden and sync via your own server",
+          "Backup to a .zip file"
+        ],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "installUrl": "https://play.google.com/store/apps/details?id=com.zapperbrz.polypodium",
+        "downloadUrl": [
+          "https://play.google.com/store/apps/details?id=com.zapperbrz.polypodium",
+          "https://apps.microsoft.com/detail/9ngjqhv1jn76",
+          "https://github.com/bruno1pb13/Polypodium/releases/latest"
+        ],
+        "sameAs": [
+          "https://play.google.com/store/apps/details?id=com.zapperbrz.polypodium",
+          "https://apps.microsoft.com/detail/9ngjqhv1jn76",
+          "https://github.com/bruno1pb13/Polypodium"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://polypodium.com.br/index.en.html#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Polypodium free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The app is free, has no ads or in-app purchases, and the source code is open under the MIT license." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does the app work without internet?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Polypodium is offline-first: plants, entries, photos and reminders stay on your device and work without a connection. The internet is only used if you turn on sync with a server." }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need an account?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Install it and start adding your plants. An account is only needed on the sync server, which is optional and hosted by you." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do watering reminders work?",
+            "acceptedAnswer": { "@type": "Answer", "text": "You set how often each plant needs water and what time you want to be notified. The app sends a notification on the right day, grouping the plants that need watering. There are also fertilizing, pruning and check-up reminders, plus an Agenda with everything overdue, due today and due this week." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it work for vegetable gardens and orchards?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Log harvests with quantities, record pesticide applications, and the app warns you about the pre-harvest interval before your next harvest." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Polypodium identify plants from photos?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. The app focuses on tracking and care. To set a plant's species there is an offline autocomplete with common and scientific names from the Flora Brasil database." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I share my garden with family?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. With your own server (installed with Docker), several people can sync the same garden across phones and computers." }
+          },
+          {
+            "@type": "Question",
+            "name": "Where is my data stored?",
+            "acceptedAnswer": { "@type": "Answer", "text": "On your device, or on the server you host yourself. Polypodium collects no data and lets you export a full backup, photos included, as a .zip file." }
+          }
+        ]
+      }
     ]
   }
   </script>
@@ -315,6 +404,37 @@
     footer ul { list-style: none; display: flex; flex-wrap: wrap; gap: 1.25rem; }
     footer a { color: var(--text-muted); }
     footer a:hover { color: var(--primary); }
+
+    /* ---------- App screenshot in the hero ---------- */
+    .hero-shot {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      margin: 0 auto;
+      filter: drop-shadow(0 18px 36px rgba(45, 66, 44, 0.22));
+    }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+    .badges span {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      background: var(--chip-bg);
+      border-radius: 999px;
+      padding: 0.2rem 0.75rem;
+    }
+
+    /* ---------- FAQ ---------- */
+    .faq { max-width: 46rem; margin: 0 auto; display: grid; gap: 0.75rem; }
+    .faq details { padding: 1rem 1.35rem; }
+    .faq summary {
+      cursor: pointer;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .faq details p { color: var(--text-muted); margin-top: 0.6rem; }
   </style>
 </head>
 <body>
@@ -322,14 +442,15 @@
   <header>
     <div class="wrap">
       <nav>
-        <a class="brand" href="#">
-          <img src="assets/logo.png" alt="Polypodium logo — a stylized fern">
+        <a class="brand" href="https://play.google.com/store/apps/details?id=com.zapperbrz.polypodium&amp;hl=en">
+          <img src="assets/logo-96.webp" width="114" height="96" alt="Polypodium logo, a stylized fern">
           Polypodium
         </a>
         <div class="links">
           <a href="#features">Features</a>
           <a href="#screenshots">Screenshots</a>
-          <a href="#selfhost">Self-hosting</a>
+          <a href="#faq">FAQ</a>
+          <a href="self-host.en.html">Self-hosting</a>
           <a class="lang" href="index.html" lang="pt-BR" hreflang="pt-BR" title="Versão em português">PT</a>
           <a class="nav-download" href="#download">Download</a>
         </div>
@@ -342,82 +463,102 @@
     <!-- ===================== Hero ===================== -->
     <section class="hero">
       <div>
-        <h1>Your plant collection, cared for the way it deserves</h1>
+        <h1>The plant care app for your houseplants and vegetable garden</h1>
         <p class="sci">Polypodium vulgare L.</p>
         <p class="lead">
-          Track plants, species, soils and locations; keep a journal for each
-          plant and get watering reminders — all offline, on your device.
-          Optional sync with a server that belongs to you.
+          Watering and fertilizing reminders, a photo journal for every plant,
+          species care sheets and harvest tracking. Everything works offline, on your
+          device, and syncing with your own server is optional.
         </p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="#download">Download now</a>
-          <a class="btn btn-ghost" href="https://github.com/bruno1pb13/Polypodium" rel="noopener">View on GitHub</a>
+          <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.zapperbrz.polypodium&amp;referrer=utm_source%3Dsite%26utm_medium%3Dhero_en" rel="noopener">Get it on Google Play</a>
+          <a class="btn btn-ghost" href="#download">Windows &amp; Linux</a>
+        </div>
+        <div class="badges" aria-label="Highlights">
+          <span>Free</span><span>No ads</span><span>No account</span><span>Open source</span>
         </div>
       </div>
 
-      <!-- Espaço reservado: mockup do app em um celular -->
-      <div class="placeholder hero-mockup" role="img" aria-label="Placeholder for the app mockup">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <rect x="3" y="3" width="18" height="18" rx="3"/>
-          <circle cx="9" cy="9" r="2"/>
-          <path d="m21 15-4.5-4.5L7 20"/>
-        </svg>
-        <span>App mockup<br>(coming soon)</span>
-      </div>
+      <img class="hero-shot" src="assets/screen-detalhe.webp" width="332" height="716" fetchpriority="high"
+           alt="A plant screen in Polypodium: a sunflower with soil, location, watering frequency, a watering-up-to-date notice and the journal timeline">
     </section>
 
     <!-- ===================== Recursos ===================== -->
     <section id="features">
-      <h2 class="section-title">Made for people who grow things</h2>
-      <p class="section-sub">Offline-first: works without internet and without an account. Your data stays with you.</p>
+      <h2 class="section-title">Everything your plant collection needs</h2>
+      <p class="section-sub">Succulents, ferns, orchids, vegetables or fruit trees: log every bit of care and let the app remind you of the next one.</p>
 
       <div class="features">
         <div class="card">
           <span class="icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22c4-4 8-7.6 8-12a8 8 0 1 0-16 0c0 4.4 4 8 8 12Z"/><path d="M12 8v6M9 11h6"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2.7C9 6 6.5 9.2 6.5 13a5.5 5.5 0 0 0 11 0c0-3.8-2.5-7-5.5-10.3Z"/></svg>
           </span>
-          <h3>A journal for every plant</h3>
-          <p>Timeline entries: waterings, prunings, fertilizing, photos and notes — the complete history of each plant.</p>
+          <h3>Watering and fertilizing reminders</h3>
+          <p>Set how often each plant needs water and get notified on the right day. Fertilizing, pruning and check-up reminders too.</p>
         </div>
 
         <div class="card">
           <span class="icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2.7C9 6 6.5 9.2 6.5 13a5.5 5.5 0 0 0 11 0c0-3.8-2.5-7-5.5-10.3Z"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 15l2.5 2.5L16 13"/></svg>
           </span>
-          <h3>Watering reminders</h3>
-          <p>Per-plant watering frequency and notifications that survive even device reboots.</p>
+          <h3>Care agenda</h3>
+          <p>What is overdue, what is due today and what is coming this week, on one screen. On Android, a home screen widget shows today's tasks.</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          </span>
+          <h3>Photo journal</h3>
+          <p>Watering, pruning, fertilizing, repotting and notes on a timeline, with several photos per entry, before-and-after comparison and a growth chart.</p>
         </div>
 
         <div class="card">
           <span class="icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15Z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>
           </span>
-          <h3>Flora Brasil database</h3>
-          <p>Species autocomplete with the Flora Brasil database bundled into the app — scientific names without the painful typing.</p>
+          <h3>Care sheets and Flora Brasil</h3>
+          <p>Light, humidity, toxicity and blooming season for each species, with autocomplete of common and scientific names from the built-in Flora Brasil database.</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M7 20h10M12 20v-8"/><path d="M12 12C12 8 9 5 4 5c0 4 3 7 8 7Z"/><path d="M12 12c0-3 2.5-6 8-6 0 3.5-3 6-8 6Z"/></svg>
+          </span>
+          <h3>Vegetable garden and harvests</h3>
+          <p>Log harvests with quantities and pesticide applications. The app warns you while a plant is still within its pre-harvest interval.</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/></svg>
+          </span>
+          <h3>QR code labels</h3>
+          <p>Print labels for pots and garden beds. Point the camera at a label and the plant's page opens right away.</p>
         </div>
 
         <div class="card">
           <span class="icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           </span>
-          <h3>Soils and locations</h3>
-          <p>A soil catalog with reference photos and GPS locations, so you know where each plant lives.</p>
+          <h3>Soils, locations and cuttings</h3>
+          <p>A soil catalog with photos, GPS locations and cuttings linked to their parent plant, so you know where each plant came from and where it lives.</p>
         </div>
 
         <div class="card">
           <span class="icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </span>
-          <h3>Optional sync</h3>
-          <p>Local and remote workspaces: use it 100% offline, or sync across devices with a server hosted by you.</p>
+          <h3>Shared garden</h3>
+          <p>Sync between phone and computer and share the garden with your family, using a server you host. No third-party cloud.</p>
         </div>
 
         <div class="card">
           <span class="icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 22h8M12 18v4"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
           </span>
-          <h3>Cross-platform</h3>
-          <p>Android, Windows and Linux, with light and dark themes and the same delicate interface on every screen.</p>
+          <h3>Private and offline</h3>
+          <p>No account, no ads and no data collection. Export a full backup, photos included, as a .zip file whenever you want.</p>
         </div>
       </div>
     </section>
@@ -425,31 +566,31 @@
     <!-- ===================== Capturas de tela ===================== -->
     <section id="screenshots">
       <h2 class="section-title">Inside the app</h2>
-      <p class="section-sub">Plant list, details and journal — in light and dark themes.</p>
+      <p class="section-sub">Plant list, plant page and care journal, in light and dark themes.</p>
 
       <div class="gallery">
-        <img src="assets/screen.png" alt="Polypodium screenshots on four phones: plant list, plant details and care journal, in light and dark themes" loading="lazy">
+        <img src="assets/screen.webp" width="1200" height="870" loading="lazy" decoding="async"
+             alt="Four Polypodium screenshots: a plant list with sunflower, fern, daisy, succulent and lavender, and a plant page with soil, location, watering and journal entries, in light and dark themes">
       </div>
     </section>
 
     <!-- ===================== Download ===================== -->
     <section id="download">
-      <h2 class="section-title">Download</h2>
-      <p class="section-sub">Free. No account, no ads, no data collection.</p>
+      <h2 class="section-title">Download for free</h2>
+      <p class="section-sub">Android, Windows and Linux. No account, no ads, no data collection.</p>
 
       <div class="stores">
+
         <!-- Google Play -->
-        <!-- TODO: quando o app estiver publicado na Play Store, trocar pelo link
-             (https://play.google.com/store/apps/details?id=com.polypodium.polypodium) -->
-        <a class="card store-card" href="https://forms.gle/fuEZpxEj3p6UvPmq5" rel="noopener">
+        <a class="card store-card" href="https://play.google.com/store/apps/details?id=com.zapperbrz.polypodium&amp;referrer=utm_source%3Dsite%26utm_medium%3Ddownload_en" rel="noopener">
           <span class="icon">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M3.6 1.8c-.36.2-.6.6-.6 1.1v18.2c0 .5.24.9.6 1.1l10.06-10.2L3.6 1.8Zm11.5 8.75L5.9 1.2l11.44 6.6-2.24 2.75Zm2.9 3.53 2.94-1.7c.94-.55.94-1.9 0-2.45l-2.95-1.7-2.5 3.07 2.5 2.78Zm-12.1 8.72 11.44-6.6-2.24-2.5L5.9 22.8Z"/>
             </svg>
           </span>
           <span class="kicker">Android</span>
-          <span class="name">Closed beta</span>
-          <span class="hint">Sign up through the form</span>
+          <span class="name">Google Play</span>
+          <span class="hint">Phones and tablets</span>
         </a>
 
         <!-- Microsoft Store -->
@@ -478,14 +619,55 @@
       </div>
     </section>
 
-    <!-- ===================== Servidor próprio ===================== -->
+    <!-- ===================== FAQ ===================== -->
+    <section id="faq">
+      <h2 class="section-title">Frequently asked questions</h2>
+      <p class="section-sub">What people usually ask before installing.</p>
+
+      <div class="faq">
+        <details class="card">
+          <summary>Is Polypodium free?</summary>
+          <p>Yes. The app is free, has no ads or in-app purchases, and the source code is open under the MIT license.</p>
+        </details>
+        <details class="card">
+          <summary>Does the app work without internet?</summary>
+          <p>Yes. Polypodium is offline-first: plants, entries, photos and reminders stay on your device and work without a connection. The internet is only used if you turn on sync with a server.</p>
+        </details>
+        <details class="card">
+          <summary>Do I need an account?</summary>
+          <p>No. Install it and start adding your plants. An account is only needed on the sync server, which is optional and hosted by you.</p>
+        </details>
+        <details class="card">
+          <summary>How do watering reminders work?</summary>
+          <p>You set how often each plant needs water and what time you want to be notified. The app sends a notification on the right day, grouping the plants that need watering. There are also fertilizing, pruning and check-up reminders, plus an Agenda with everything overdue, due today and due this week.</p>
+        </details>
+        <details class="card">
+          <summary>Does it work for vegetable gardens and orchards?</summary>
+          <p>Yes. Log harvests with quantities, record pesticide applications, and the app warns you about the pre-harvest interval before your next harvest.</p>
+        </details>
+        <details class="card">
+          <summary>Does Polypodium identify plants from photos?</summary>
+          <p>No. The app focuses on tracking and care. To set a plant's species there is an offline autocomplete with common and scientific names from the Flora Brasil database.</p>
+        </details>
+        <details class="card">
+          <summary>Can I share my garden with family?</summary>
+          <p>Yes. With <a href="self-host.en.html">your own server</a> (installed with Docker), several people can sync the same garden across phones and computers.</p>
+        </details>
+        <details class="card">
+          <summary>Where is my data stored?</summary>
+          <p>On your device, or on the server you host yourself. Polypodium collects no data and lets you export a full backup, photos included, as a .zip file. See the <a href="privacy.html">privacy policy</a>.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== Self-hosting ===================== -->
     <section id="selfhost">
       <div class="card selfhost">
         <h2 class="section-title" style="margin-bottom:0">Your server, your rules</h2>
         <p>
-          Polypodium doesn't depend on anyone's cloud: if you want to sync
-          across devices, you can spin up your own server with Docker in minutes.
-          Without a server, the app is still complete — just local.
+          Polypodium doesn't depend on a third-party cloud: if you want to sync
+          between devices or share the garden with other people, you can spin up your
+          own server with Docker in minutes. Without a server, the app is still complete, just local.
         </p>
         <div class="cta-row" style="justify-content:center">
           <a class="btn btn-primary" href="self-host.en.html">Setup guide</a>
@@ -500,8 +682,9 @@
     <div class="wrap cols">
       <span>© 2026 Polypodium · <a href="mailto:bruno1pb13@gmail.com">bruno1pb13@gmail.com</a></span>
       <ul>
+        <li><a href="self-host.en.html">Self-hosting</a></li>
         <li><a href="privacy.html">Privacy Policy</a></li>
-        <li><a href="privacidade.html">Política de Privacidade</a></li>
+        <li><a href="privacidade.html" hreflang="pt-BR">Política de Privacidade</a></li>
         <li><a href="https://github.com/bruno1pb13/Polypodium" rel="noopener">GitHub</a></li>
       </ul>
     </div>
