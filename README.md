@@ -7,7 +7,8 @@ Site público do [Polypodium](https://github.com/bruno1pb13/Polypodium), servido
 - `index.html` / `index.en.html` — landing page (PT/EN) com recursos, capturas, download (Google Play, Microsoft Store, GitHub Releases para Linux) e perguntas frequentes.
 - `self-host.html` / `self-host.en.html` — guia de instalação do servidor de sincronização.
 - `sitemap.xml` — inclui as alternativas de idioma (`hreflang`); atualize o `lastmod` ao mudar uma página.
-- `assets/` — logo, fundo botânico e fontes Cormorant Garamond copiados do app. As páginas usam as versões otimizadas (`*.webp`, ícones `favicon-48`/`icon-192`/`apple-touch-icon`, `og-*.jpg` para compartilhamento); `logo.png` e `screen.png` são os originais.
+- `assets/` — versões otimizadas dos arquivos do app: logo (`logo.png` é o original), fundo botânico (`background.webp`), ícones (`favicon-48`/`icon-192`/`apple-touch-icon`), `og-*.jpg` para compartilhamento e as fontes Cormorant Garamond em WOFF2 com só os caracteres latinos (`pyftsubset` a partir dos TTF do app).
+- Capturas por idioma (`*-pt-*` / `*-en-*`), em WebP e em vários tamanhos para o `srcset`: `hero-*` (celular, claro e escuro, 1x/2x), `gallery-*` (quatro telas do celular) e `desktop-*`. Vêm das imagens das lojas em `Polypodium/docs/store/`, feitas com dados fictícios.
 
 ## SEO
 

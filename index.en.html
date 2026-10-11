@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Polypodium: plant care app with watering reminders</title>
-  <meta name="description" content="Free plant care app for houseplants and vegetable gardens: watering and fertilizing reminders, photo journal, care sheets and QR labels. Offline, no ads.">
+  <meta name="description" content="Free plant care app for houseplants and vegetable gardens: watering and fertilizing reminders, photo journal, growth charts, pots and QR labels. Offline, no ads.">
   <link rel="canonical" href="https://polypodium.com.br/index.en.html">
   <link rel="alternate" hreflang="pt-BR" href="https://polypodium.com.br/">
   <link rel="alternate" hreflang="en" href="https://polypodium.com.br/index.en.html">
@@ -13,7 +13,10 @@
   <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="preload" as="image" href="assets/screen-detalhe.webp" type="image/webp">
+  <link rel="preload" as="image" type="image/webp" media="(prefers-color-scheme: dark)"
+        imagesrcset="assets/hero-dark-en-300.webp 1x, assets/hero-dark-en-600.webp 2x">
+  <link rel="preload" as="image" type="image/webp" media="(prefers-color-scheme: light)"
+        imagesrcset="assets/hero-en-300.webp 1x, assets/hero-en-600.webp 2x">
 
   <!-- Open Graph / social -->
   <meta property="og:type" content="website">
@@ -51,25 +54,33 @@
         "alternateName": "Polypodium — plant care",
         "url": "https://polypodium.com.br/index.en.html",
         "image": "https://polypodium.com.br/assets/icon-512.png",
-        "screenshot": "https://polypodium.com.br/assets/screen.webp",
-        "description": "Free, offline plant care app for houseplants and vegetable gardens: photo journal, watering, fertilizing and pruning reminders, per-species care sheets with the Flora Brasil database, harvest and pesticide pre-harvest interval tracking, QR code labels and optional sync via your own server.",
+        "screenshot": [
+          "https://polypodium.com.br/assets/gallery-en-1200.webp",
+          "https://polypodium.com.br/assets/desktop-en-1200.webp"
+        ],
+        "description": "Free, offline plant care app for houseplants and vegetable gardens: a home screen with today's care, photo journal, growth charts, watering, fertilizing and pruning reminders, pots and planters, per-species care sheets with the Flora Brasil database, harvest and pesticide pre-harvest interval tracking, QR code labels and optional sync via your own server.",
         "applicationCategory": "LifestyleApplication",
         "operatingSystem": "Android, Windows 10, Windows 11, Linux",
-        "softwareVersion": "2.9.0",
+        "softwareVersion": "3.3.1",
         "inLanguage": ["en", "pt-BR"],
         "isAccessibleForFree": true,
         "license": "https://opensource.org/licenses/MIT",
         "featureList": [
+          "Home screen with today's care and garden health",
           "Per-plant care journal with multiple photos per entry",
-          "Watering, fertilizing and pruning reminders",
+          "Height, health and watering consistency charts",
+          "Activity history with a heatmap",
+          "Watering, fertilizing, pruning and pesticide reminders",
           "Agenda with overdue, today's and this week's tasks",
           "Species care sheet: light, humidity, toxicity and blooming",
           "Built-in Flora Brasil species database",
           "Harvest log and pesticide pre-harvest interval",
           "Cuttings linked to their parent plant and repotting log",
-          "Printable QR code labels",
+          "Pots and planters holding several plants",
+          "Printable QR code labels with a short plant code",
           "Android home screen widget",
           "Shared garden and sync via your own server",
+          "Weather forecast per location, with your own server",
           "Backup to a .zip file"
         ],
         "offers": {
@@ -101,7 +112,7 @@
           {
             "@type": "Question",
             "name": "Does the app work without internet?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Polypodium is offline-first: plants, entries, photos and reminders stay on your device and work without a connection. The internet is only used if you turn on sync with a server." }
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Polypodium is offline-first: plants, entries, photos and reminders stay on your device and work without a connection. The internet is only used if you turn on sync with a server or download the latest Flora Brasil database; builds downloaded from GitHub also check for updates." }
           },
           {
             "@type": "Question",
@@ -142,14 +153,14 @@
     /* ---------- Identidade visual (segue o app: Material 3 seed #4CAF50, glassmorphism, Cormorant Garamond) ---------- */
     @font-face {
       font-family: "Cormorant Garamond";
-      src: url("assets/fonts/CormorantGaramond-VariableFont_wght.ttf") format("truetype-variations");
+      src: url("assets/fonts/cormorant-garamond-latin.woff2") format("woff2");
       font-weight: 300 700;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: "Cormorant Garamond";
-      src: url("assets/fonts/CormorantGaramond-Italic-VariableFont_wght.ttf") format("truetype-variations");
+      src: url("assets/fonts/cormorant-garamond-italic-latin.woff2") format("woff2");
       font-weight: 300 700;
       font-style: italic;
       font-display: swap;
@@ -203,7 +214,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: url("assets/background.png") center / cover no-repeat;
+      background: url("assets/background.webp") center / cover no-repeat;
       opacity: 0.55;
       pointer-events: none;
       z-index: -1;
@@ -414,6 +425,17 @@
       margin: 0 auto;
       filter: drop-shadow(0 18px 36px rgba(45, 66, 44, 0.22));
     }
+    .hero-pic { display: block; }
+
+    .desktop-shot {
+      display: block;
+      width: 100%;
+      max-width: 58rem;
+      height: auto;
+      margin: 2.5rem auto 0;
+      filter: drop-shadow(0 18px 36px rgba(45, 66, 44, 0.18));
+    }
+    .shot-caption { text-align: center; color: var(--text-muted); font-size: 0.92rem; margin-top: 0.9rem; }
 
     .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
     .badges span {
@@ -479,8 +501,12 @@
         </div>
       </div>
 
-      <img class="hero-shot" src="assets/screen-detalhe.webp" width="332" height="716" fetchpriority="high"
-           alt="A plant screen in Polypodium: a sunflower with soil, location, watering frequency, a watering-up-to-date notice and the journal timeline">
+      <picture class="hero-pic">
+        <source media="(prefers-color-scheme: dark)" type="image/webp"
+                srcset="assets/hero-dark-en-300.webp 1x, assets/hero-dark-en-600.webp 2x">
+        <img class="hero-shot" src="assets/hero-en-300.webp" srcset="assets/hero-en-300.webp 1x, assets/hero-en-600.webp 2x"
+             width="300" height="522" fetchpriority="high" alt="Polypodium's home screen: today's care with watering for calathea, basil, Boston fern and cherry tomato, and the garden health">
+      </picture>
     </section>
 
     <!-- ===================== Recursos ===================== -->
@@ -491,10 +517,18 @@
       <div class="features">
         <div class="card">
           <span class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg>
+          </span>
+          <h3>Your whole day at a glance</h3>
+          <p>Open the app and see what needs care today, how your garden is doing and your plants. Water them all with a single tap.</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2.7C9 6 6.5 9.2 6.5 13a5.5 5.5 0 0 0 11 0c0-3.8-2.5-7-5.5-10.3Z"/></svg>
           </span>
           <h3>Watering and fertilizing reminders</h3>
-          <p>Set how often each plant needs water and get notified on the right day. Fertilizing, pruning and check-up reminders too.</p>
+          <p>Set how often each plant needs water and get notified on the right day. Fertilizing, pruning and pesticide reapplication reminders too.</p>
         </div>
 
         <div class="card">
@@ -510,7 +544,15 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>
           </span>
           <h3>Photo journal</h3>
-          <p>Watering, pruning, fertilizing, repotting and notes on a timeline, with several photos per entry, before-and-after comparison and a growth chart.</p>
+          <p>Watering, pruning, fertilizing, repotting and notes on a timeline, with several photos per entry and before-and-after comparison.</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-7"/></svg>
+          </span>
+          <h3>Charts and history</h3>
+          <p>Track each plant's height, health and watering consistency, and see your garden's whole history on an activity heatmap.</p>
         </div>
 
         <div class="card">
@@ -531,10 +573,18 @@
 
         <div class="card">
           <span class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14l-1.6 8.2a1 1 0 0 1-1 .8H7.6a1 1 0 0 1-1-.8L5 12Z"/><path d="M12 12V8"/><path d="M12 8c0-2.5-1.8-4.5-5-4.5 0 2.5 1.8 4.5 5 4.5Z"/><path d="M12 9.5c0-2 1.5-3.8 4.5-3.8 0 2-1.5 3.8-4.5 3.8Z"/></svg>
+          </span>
+          <h3>Pots and planters</h3>
+          <p>Group several plants in the same pot, planter or bed, move them together and log care for the whole pot at once.</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/></svg>
           </span>
           <h3>QR code labels</h3>
-          <p>Print labels for pots and garden beds. Point the camera at a label and the plant's page opens right away.</p>
+          <p>Print labels for pots and garden beds. Point the camera at a label and the plant's page opens right away; the short code works in search too.</p>
         </div>
 
         <div class="card">
@@ -550,7 +600,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </span>
           <h3>Shared garden</h3>
-          <p>Sync between phone and computer and share the garden with your family, using a server you host. No third-party cloud.</p>
+          <p>Sync between phone and computer and share the garden with your family, using a server you host. With it, each location also gets a weather forecast.</p>
         </div>
 
         <div class="card">
@@ -566,12 +616,21 @@
     <!-- ===================== Capturas de tela ===================== -->
     <section id="screenshots">
       <h2 class="section-title">Inside the app</h2>
-      <p class="section-sub">Plant list, plant page and care journal, in light and dark themes.</p>
+      <p class="section-sub">Plant page, charts, journal and labels on your phone. On a computer, the same app gets a sidebar.</p>
 
       <div class="gallery">
-        <img src="assets/screen.webp" width="1200" height="870" loading="lazy" decoding="async"
-             alt="Four Polypodium screenshots: a plant list with sunflower, fern, daisy, succulent and lavender, and a plant page with soil, location, watering and journal entries, in light and dark themes">
+        <img src="assets/gallery-en-1200.webp"
+             srcset="assets/gallery-en-800.webp 800w, assets/gallery-en-1200.webp 1200w, assets/gallery-en-1800.webp 1800w"
+             sizes="(max-width: 960px) calc(100vw - 2.5rem), 928px"
+             width="1200" height="484" loading="lazy" decoding="async"
+             alt="Four Polypodium phone screens: the cherry tomato's page, growth and health charts, a journal with a harvest and a photo, and a QR code label">
       </div>
+      <img class="desktop-shot" src="assets/desktop-en-1200.webp"
+           srcset="assets/desktop-en-800.webp 800w, assets/desktop-en-1200.webp 1200w, assets/desktop-en-1600.webp 1600w"
+           sizes="(max-width: 960px) calc(100vw - 2.5rem), 928px"
+           width="1200" height="675" loading="lazy" decoding="async"
+           alt="Polypodium on a computer: a sidebar with the app's sections and the home screen with today's care, garden health and plant photos">
+      <p class="shot-caption">On Windows and Linux the app uses the whole screen, with side navigation.</p>
     </section>
 
     <!-- ===================== Download ===================== -->
@@ -631,7 +690,7 @@
         </details>
         <details class="card">
           <summary>Does the app work without internet?</summary>
-          <p>Yes. Polypodium is offline-first: plants, entries, photos and reminders stay on your device and work without a connection. The internet is only used if you turn on sync with a server.</p>
+          <p>Yes. Polypodium is offline-first: plants, entries, photos and reminders stay on your device and work without a connection. The internet is only used if you turn on sync with a server or download the latest Flora Brasil database; builds downloaded from GitHub also check for updates.</p>
         </details>
         <details class="card">
           <summary>Do I need an account?</summary>
