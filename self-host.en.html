@@ -26,14 +26,14 @@
     /* ---------- Identidade visual (mesma do index.html) ---------- */
     @font-face {
       font-family: "Cormorant Garamond";
-      src: url("assets/fonts/CormorantGaramond-VariableFont_wght.ttf") format("truetype-variations");
+      src: url("assets/fonts/cormorant-garamond-latin.woff2") format("woff2");
       font-weight: 300 700;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: "Cormorant Garamond";
-      src: url("assets/fonts/CormorantGaramond-Italic-VariableFont_wght.ttf") format("truetype-variations");
+      src: url("assets/fonts/cormorant-garamond-italic-latin.woff2") format("woff2");
       font-weight: 300 700;
       font-style: italic;
       font-display: swap;
@@ -91,7 +91,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: url("assets/background.png") center / cover no-repeat;
+      background: url("assets/background.webp") center / cover no-repeat;
       opacity: 0.55;
       pointer-events: none;
       z-index: -1;
@@ -460,6 +460,15 @@ REGISTRATION_TOKEN=</code></pre>
 docker compose up -d</code></pre>
 
       <p>Database migrations run automatically at startup — there is no manual step.</p>
+      <p>When a new version comes out, admins see a notice in the app. To know about it, the server checks
+         the releases on GitHub; on networks without internet access, turn it off with <code>UPDATE_CHECK=false</code>.</p>
+
+      <h2>Weather forecast (optional)</h2>
+      <p>The server can show the weather forecast and the season for each location that has coordinates.
+         It is off by default: an admin turns it on under <strong>Server administration</strong>, inside the app.</p>
+      <p>Forecasts come from <a href="https://open-meteo.com" rel="noopener">Open-Meteo</a>, which is free and needs
+         no API key. Nearby locations (within 5 km, adjustable with <code>WEATHER_CLUSTER_KM</code>) form a region,
+         and only the center of each region is sent to the provider, once a day.</p>
 
       <h2>Reference: environment variables</h2>
       <div class="table-scroll">
@@ -473,8 +482,14 @@ docker compose up -d</code></pre>
           <tr><td><code>ALLOWED_ORIGINS</code></td><td>CORS: <code>*</code> or a comma-separated list of origins. Default: <code>*</code>.</td></tr>
           <tr><td><code>AUTH_RATE_LIMIT_MAX</code> / <code>AUTH_RATE_LIMIT_WINDOW</code></td><td>Brute-force protection on login. Default: 20 requests / 300 s per IP.</td></tr>
           <tr><td><code>MAX_JSON_BODY_BYTES</code> / <code>MAX_PHOTO_BYTES</code></td><td>Maximum request and photo sizes. Default: 1 MB / 15 MB.</td></tr>
+          <tr><td><code>UPDATE_CHECK</code></td><td><code>false</code> turns off checking GitHub for new versions. Default: on.</td></tr>
+          <tr><td><code>WEATHER_CLUSTER_KM</code></td><td>Radius of a weather forecast region. Default: 5 km.</td></tr>
+          <tr><td><code>WEATHER_API_URL</code></td><td>An Open-Meteo-compatible endpoint, to use another instance. Default: the public Open-Meteo API.</td></tr>
         </table>
       </div>
+
+      <p>Optional variables only reach the server if they are listed under <code>environment:</code> in
+         <code>docker-compose.yml</code>, for example <code>UPDATE_CHECK: "false"</code>.</p>
 
       <p>Questions or problems? Open an issue on the
          <a href="https://github.com/bruno1pb13/Polypodium_server" rel="noopener">server repository</a>

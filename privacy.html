@@ -36,7 +36,7 @@
 </head>
 <body>
   <h1>Privacy Policy — Polypodium</h1>
-  <p class="meta">Last updated: July 9, 2026 · <a href="privacidade.html">Versão em português</a></p>
+  <p class="meta">Last updated: October 10, 2026 · <a href="privacidade.html">Versão em português</a></p>
 
   <p><strong>Summary: the Polypodium developer does not collect, store, or have access to any of your data.</strong>
   Polypodium is an offline-first plant collection management app. All data stays on your device and, optionally,
@@ -56,6 +56,8 @@
   <p>You can attach photos to plant and soil records by picking images from your gallery or taking pictures with
   the camera. Images are stored on the device (and on your own server, if sync is configured). The app does not
   access any photos other than the ones you select.</p>
+  <p>The camera is also used to scan the plants' QR code labels. The scanned image is processed on the device and
+  is never saved or sent anywhere.</p>
 
   <h2>4. Optional sync with your own (self-hosted) server</h2>
   <p>Polypodium can optionally synchronize your data with a Polypodium server installed and operated by you
@@ -64,24 +66,38 @@
     <li>Your data and photos are sent <strong>exclusively to the server you configured</strong> — never to the developer, who operates no servers and has no access to your data.</li>
     <li>Account credentials (e-mail and password) are used solely to authenticate against that server. Passwords are stored on the server in protected form (bcrypt hash), never in plain text.</li>
     <li>Whoever operates the server is responsible for the data stored on it, including backups and account deletion.</li>
+    <li>If the admin turns on the weather forecast, the server queries <a href="https://open-meteo.com">Open-Meteo</a>
+    sending only approximate coordinates: the center of a region a few kilometers wide, never a plant's exact
+    location. The server also checks GitHub to tell the admin about new versions.</li>
   </ul>
-  <p>If you never configure a server, the app works 100% offline and no data leaves your device.</p>
+  <p>If you never configure a server, none of your data leaves your device.</p>
 
-  <h2>5. Notifications</h2>
+  <h2>5. Connections that send none of your data</h2>
+  <p>Even without a server, the app may go online in these cases. None of them sends any of your data; as with
+  any internet access, the service contacted sees the device's IP address.</p>
+  <ul>
+    <li><strong>Updates:</strong> builds downloaded from GitHub (APK and AppImage) query GitHub's public API to find
+    out whether a new version is available. On Google Play, the check is done by Google Play itself. On the
+    Microsoft Store, the store handles updates and the app makes no request.</li>
+    <li><strong>Species database:</strong> when you tap to download the latest Flora Brasil database, the app
+    downloads the species list from the Rio de Janeiro Botanical Garden (JBRJ).</li>
+  </ul>
+
+  <h2>6. Notifications</h2>
   <p>Watering reminders use local notifications scheduled on the device itself. No external notification service is used.</p>
 
-  <h2>6. Data deletion</h2>
+  <h2>7. Data deletion</h2>
   <p>To remove your local data, delete it inside the app or uninstall the app. Data synchronized to a self-hosted
   server can be removed by that server's administrator.</p>
 
-  <h2>7. Children</h2>
+  <h2>8. Children</h2>
   <p>The app is not directed at children and, as described above, does not collect personal data from any user.</p>
 
-  <h2>8. Changes to this policy</h2>
+  <h2>9. Changes to this policy</h2>
   <p>This policy may be updated to reflect changes in the app. The current version will always be available on
   this page, with the update date shown at the top.</p>
 
-  <h2>9. Contact</h2>
+  <h2>10. Contact</h2>
   <p>Questions about this policy can be sent to
   <a href="mailto:bruno1pb13@gmail.com">bruno1pb13@gmail.com</a>.</p>
 </body>

@@ -26,14 +26,14 @@
     /* ---------- Identidade visual (mesma do index.html) ---------- */
     @font-face {
       font-family: "Cormorant Garamond";
-      src: url("assets/fonts/CormorantGaramond-VariableFont_wght.ttf") format("truetype-variations");
+      src: url("assets/fonts/cormorant-garamond-latin.woff2") format("woff2");
       font-weight: 300 700;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: "Cormorant Garamond";
-      src: url("assets/fonts/CormorantGaramond-Italic-VariableFont_wght.ttf") format("truetype-variations");
+      src: url("assets/fonts/cormorant-garamond-italic-latin.woff2") format("woff2");
       font-weight: 300 700;
       font-style: italic;
       font-display: swap;
@@ -91,7 +91,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: url("assets/background.png") center / cover no-repeat;
+      background: url("assets/background.webp") center / cover no-repeat;
       opacity: 0.55;
       pointer-events: none;
       z-index: -1;
@@ -459,6 +459,16 @@ REGISTRATION_TOKEN=</code></pre>
 docker compose up -d</code></pre>
 
       <p>As migrações do banco rodam automaticamente na inicialização — não há passo manual.</p>
+      <p>Quando sai uma versão nova, os administradores veem um aviso no app. Para saber disso, o servidor
+         consulta as releases no GitHub; em redes sem acesso à internet, desligue com <code>UPDATE_CHECK=false</code>.</p>
+
+      <h2>Previsão do tempo (opcional)</h2>
+      <p>O servidor pode mostrar a previsão do tempo e a estação do ano em cada localização que tenha
+         coordenadas. O recurso vem desligado: um administrador liga em <strong>Administração do servidor</strong>,
+         dentro do app.</p>
+      <p>A previsão vem do <a href="https://open-meteo.com" rel="noopener">Open-Meteo</a>, que é gratuito e não
+         exige chave. Localizações próximas (até 5 km, ajustável com <code>WEATHER_CLUSTER_KM</code>) formam uma
+         região, e só o centro de cada região é enviado ao provedor, uma vez por dia.</p>
 
       <h2>Referência: variáveis de ambiente</h2>
       <div class="table-scroll">
@@ -472,8 +482,14 @@ docker compose up -d</code></pre>
           <tr><td><code>ALLOWED_ORIGINS</code></td><td>CORS: <code>*</code> ou lista de origens separadas por vírgula. Padrão: <code>*</code>.</td></tr>
           <tr><td><code>AUTH_RATE_LIMIT_MAX</code> / <code>AUTH_RATE_LIMIT_WINDOW</code></td><td>Limite contra força bruta no login. Padrão: 20 requisições / 300 s por IP.</td></tr>
           <tr><td><code>MAX_JSON_BODY_BYTES</code> / <code>MAX_PHOTO_BYTES</code></td><td>Tamanho máximo de requisições e fotos. Padrão: 1 MB / 15 MB.</td></tr>
+          <tr><td><code>UPDATE_CHECK</code></td><td><code>false</code> desliga a consulta de versões novas no GitHub. Padrão: ligada.</td></tr>
+          <tr><td><code>WEATHER_CLUSTER_KM</code></td><td>Raio da região da previsão do tempo. Padrão: 5 km.</td></tr>
+          <tr><td><code>WEATHER_API_URL</code></td><td>Endpoint compatível com o Open-Meteo, para usar outra instância. Padrão: a API pública do Open-Meteo.</td></tr>
         </table>
       </div>
+
+      <p>As variáveis opcionais só chegam ao servidor se estiverem em <code>environment:</code> no
+         <code>docker-compose.yml</code>, por exemplo <code>UPDATE_CHECK: "false"</code>.</p>
 
       <p>Dúvidas ou problemas? Abra uma issue no
          <a href="https://github.com/bruno1pb13/Polypodium_server" rel="noopener">repositório do servidor</a>

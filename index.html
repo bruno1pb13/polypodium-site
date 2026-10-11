@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Polypodium: app para cuidar de plantas com lembrete de rega</title>
-  <meta name="description" content="App grátis para cuidar das suas plantas e da horta: lembretes de rega e adubação, diário com fotos, ficha de cuidados e etiquetas QR. Offline e sem anúncios.">
+  <meta name="description" content="App grátis para cuidar das suas plantas e da horta: lembretes de rega e adubação, diário com fotos, gráficos de crescimento, vasos e etiquetas QR. Offline e sem anúncios.">
   <link rel="canonical" href="https://polypodium.com.br/">
   <link rel="alternate" hreflang="pt-BR" href="https://polypodium.com.br/">
   <link rel="alternate" hreflang="en" href="https://polypodium.com.br/index.en.html">
@@ -13,7 +13,10 @@
   <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="preload" as="image" href="assets/screen-detalhe.webp" type="image/webp">
+  <link rel="preload" as="image" type="image/webp" media="(prefers-color-scheme: dark)"
+        imagesrcset="assets/hero-dark-pt-300.webp 1x, assets/hero-dark-pt-600.webp 2x">
+  <link rel="preload" as="image" type="image/webp" media="(prefers-color-scheme: light)"
+        imagesrcset="assets/hero-pt-300.webp 1x, assets/hero-pt-600.webp 2x">
 
   <!-- Open Graph / redes sociais -->
   <meta property="og:type" content="website">
@@ -51,25 +54,33 @@
         "alternateName": "Polypodium — cuidado de plantas",
         "url": "https://polypodium.com.br/",
         "image": "https://polypodium.com.br/assets/icon-512.png",
-        "screenshot": "https://polypodium.com.br/assets/screen.webp",
-        "description": "App gratuito e offline para cuidar de plantas e da horta: diário com fotos, lembretes de rega, adubação e poda, ficha de cuidados por espécie com a base Flora Brasil, controle de colheita e carência de defensivos, etiquetas com QR code e sincronização opcional em servidor próprio.",
+        "screenshot": [
+          "https://polypodium.com.br/assets/gallery-pt-1200.webp",
+          "https://polypodium.com.br/assets/desktop-pt-1200.webp"
+        ],
+        "description": "App gratuito e offline para cuidar de plantas e da horta: painel com os cuidados do dia, diário com fotos, gráficos de crescimento, lembretes de rega, adubação e poda, vasos e jardineiras, ficha de cuidados por espécie com a base Flora Brasil, controle de colheita e carência de defensivos, etiquetas com QR code e sincronização opcional em servidor próprio.",
         "applicationCategory": "LifestyleApplication",
         "operatingSystem": "Android, Windows 10, Windows 11, Linux",
-        "softwareVersion": "2.9.0",
+        "softwareVersion": "3.3.1",
         "inLanguage": ["pt-BR", "en"],
         "isAccessibleForFree": true,
         "license": "https://opensource.org/licenses/MIT",
         "featureList": [
+          "Painel inicial com os cuidados do dia e a saúde do jardim",
           "Diário de cuidados por planta com várias fotos por registro",
-          "Lembretes de rega, adubação e poda",
+          "Gráficos de altura, saúde e regularidade de rega",
+          "Histórico de atividade com mapa de calor",
+          "Lembretes de rega, adubação, poda e defensivos",
           "Agenda com tarefas atrasadas, de hoje e da semana",
           "Ficha de cuidados da espécie: luz, umidade, toxicidade e floração",
           "Base de espécies Flora Brasil embutida",
           "Registro de colheita e carência de defensivos",
           "Mudas vinculadas à planta-mãe e registro de replantio",
-          "Etiquetas com QR code para imprimir",
+          "Vasos e jardineiras com várias plantas",
+          "Etiquetas com QR code e código curto para imprimir",
           "Widget de tela inicial no Android",
           "Jardim compartilhado e sincronização com servidor próprio",
+          "Previsão do tempo por localização, com servidor próprio",
           "Backup em arquivo .zip"
         ],
         "offers": {
@@ -101,7 +112,7 @@
           {
             "@type": "Question",
             "name": "O app funciona sem internet?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Sim. O Polypodium é offline-first: plantas, registros, fotos e lembretes ficam no seu aparelho e funcionam sem conexão. A internet só é usada se você ativar a sincronização com um servidor." }
+            "acceptedAnswer": { "@type": "Answer", "text": "Sim. O Polypodium é offline-first: plantas, registros, fotos e lembretes ficam no seu aparelho e funcionam sem conexão. A internet só é usada se você ativar a sincronização com um servidor ou baixar a versão mais nova da base Flora Brasil; nas versões baixadas do GitHub, o app também consulta se há atualização." }
           },
           {
             "@type": "Question",
@@ -142,14 +153,14 @@
     /* ---------- Identidade visual (segue o app: Material 3 seed #4CAF50, glassmorphism, Cormorant Garamond) ---------- */
     @font-face {
       font-family: "Cormorant Garamond";
-      src: url("assets/fonts/CormorantGaramond-VariableFont_wght.ttf") format("truetype-variations");
+      src: url("assets/fonts/cormorant-garamond-latin.woff2") format("woff2");
       font-weight: 300 700;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
       font-family: "Cormorant Garamond";
-      src: url("assets/fonts/CormorantGaramond-Italic-VariableFont_wght.ttf") format("truetype-variations");
+      src: url("assets/fonts/cormorant-garamond-italic-latin.woff2") format("woff2");
       font-weight: 300 700;
       font-style: italic;
       font-display: swap;
@@ -203,7 +214,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: url("assets/background.png") center / cover no-repeat;
+      background: url("assets/background.webp") center / cover no-repeat;
       opacity: 0.55;
       pointer-events: none;
       z-index: -1;
@@ -414,6 +425,17 @@
       margin: 0 auto;
       filter: drop-shadow(0 18px 36px rgba(45, 66, 44, 0.22));
     }
+    .hero-pic { display: block; }
+
+    .desktop-shot {
+      display: block;
+      width: 100%;
+      max-width: 58rem;
+      height: auto;
+      margin: 2.5rem auto 0;
+      filter: drop-shadow(0 18px 36px rgba(45, 66, 44, 0.18));
+    }
+    .shot-caption { text-align: center; color: var(--text-muted); font-size: 0.92rem; margin-top: 0.9rem; }
 
     .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
     .badges span {
@@ -442,7 +464,7 @@
   <header>
     <div class="wrap">
       <nav>
-        <a class="brand" href="https://play.google.com/store/apps/details?id=com.zapperbrz.polypodium">
+        <a class="brand" href="./">
           <img src="assets/logo-96.webp" width="114" height="96" alt="Logo do Polypodium, uma samambaia estilizada">
           Polypodium
         </a>
@@ -479,8 +501,12 @@
         </div>
       </div>
 
-      <img class="hero-shot" src="assets/screen-detalhe.webp" width="332" height="716" fetchpriority="high"
-           alt="Tela de uma planta no Polypodium: girassol com solo, localização, frequência de rega, aviso de irrigação em dia e a linha do tempo de registros">
+      <picture class="hero-pic">
+        <source media="(prefers-color-scheme: dark)" type="image/webp"
+                srcset="assets/hero-dark-pt-300.webp 1x, assets/hero-dark-pt-600.webp 2x">
+        <img class="hero-shot" src="assets/hero-pt-300.webp" srcset="assets/hero-pt-300.webp 1x, assets/hero-pt-600.webp 2x"
+             width="300" height="522" fetchpriority="high" alt="Tela inicial do Polypodium: cuidados de hoje com as regas de calateia, jiboia, manjericão e samambaia, e a saúde do jardim">
+      </picture>
     </section>
 
     <!-- ===================== Recursos ===================== -->
@@ -491,10 +517,18 @@
       <div class="features">
         <div class="card">
           <span class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg>
+          </span>
+          <h3>Tudo do dia na tela inicial</h3>
+          <p>Ao abrir o app você vê o que cuidar hoje, a saúde do jardim e suas plantas. Regue todas de uma vez com um toque.</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2.7C9 6 6.5 9.2 6.5 13a5.5 5.5 0 0 0 11 0c0-3.8-2.5-7-5.5-10.3Z"/></svg>
           </span>
           <h3>Lembretes de rega e adubação</h3>
-          <p>Defina a frequência de rega de cada planta e receba a notificação no dia certo. Também há lembretes de adubação, poda e observação.</p>
+          <p>Defina a frequência de rega de cada planta e receba a notificação no dia certo. Também há lembretes de adubação, poda e reaplicação de defensivos.</p>
         </div>
 
         <div class="card">
@@ -510,7 +544,15 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>
           </span>
           <h3>Diário com fotos</h3>
-          <p>Regas, podas, adubações, replantios e observações em uma linha do tempo, com várias fotos por registro, comparação de antes e depois e gráfico de crescimento.</p>
+          <p>Regas, podas, adubações, replantios e observações em uma linha do tempo, com várias fotos por registro e comparação de antes e depois.</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-7"/></svg>
+          </span>
+          <h3>Gráficos e histórico</h3>
+          <p>Acompanhe a altura, a saúde e a regularidade da rega de cada planta, e veja todo o histórico do jardim num mapa de atividade.</p>
         </div>
 
         <div class="card">
@@ -531,10 +573,18 @@
 
         <div class="card">
           <span class="icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14l-1.6 8.2a1 1 0 0 1-1 .8H7.6a1 1 0 0 1-1-.8L5 12Z"/><path d="M12 12V8"/><path d="M12 8c0-2.5-1.8-4.5-5-4.5 0 2.5 1.8 4.5 5 4.5Z"/><path d="M12 9.5c0-2 1.5-3.8 4.5-3.8 0 2-1.5 3.8-4.5 3.8Z"/></svg>
+          </span>
+          <h3>Vasos e jardineiras</h3>
+          <p>Agrupe várias plantas no mesmo vaso, jardineira ou canteiro, mova todas juntas e registre um cuidado para o vaso inteiro.</p>
+        </div>
+
+        <div class="card">
+          <span class="icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/></svg>
           </span>
           <h3>Etiquetas com QR code</h3>
-          <p>Imprima etiquetas para os vasos e canteiros. Aponte a câmera para a etiqueta e a ficha da planta abre na hora.</p>
+          <p>Imprima etiquetas para os vasos e canteiros. Aponte a câmera para a etiqueta e a ficha da planta abre na hora; o código curto também serve para buscar.</p>
         </div>
 
         <div class="card">
@@ -550,7 +600,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </span>
           <h3>Jardim compartilhado</h3>
-          <p>Sincronize entre celular e computador e divida o jardim com a família, usando um servidor hospedado por você. Sem nuvem de terceiros.</p>
+          <p>Sincronize entre celular e computador e divida o jardim com a família, usando um servidor hospedado por você. Com ele, cada localização ganha previsão do tempo.</p>
         </div>
 
         <div class="card">
@@ -566,12 +616,21 @@
     <!-- ===================== Capturas de tela ===================== -->
     <section id="capturas">
       <h2 class="section-title">O app por dentro</h2>
-      <p class="section-sub">Lista de plantas, ficha da planta e diário de registros, nos temas claro e escuro.</p>
+      <p class="section-sub">Ficha da planta, gráficos, diário e etiquetas no celular. No computador, o mesmo app ganha uma barra lateral.</p>
 
       <div class="gallery">
-        <img src="assets/screen.webp" width="1200" height="870" loading="lazy" decoding="async"
-             alt="Quatro capturas do Polypodium: lista de plantas com girassol, samambaia, margarida, suculenta e lavanda, e a ficha de uma planta com solo, localização, rega e registros, nos temas claro e escuro">
+        <img src="assets/gallery-pt-1200.webp"
+             srcset="assets/gallery-pt-800.webp 800w, assets/gallery-pt-1200.webp 1200w, assets/gallery-pt-1800.webp 1800w"
+             sizes="(max-width: 960px) calc(100vw - 2.5rem), 928px"
+             width="1200" height="484" loading="lazy" decoding="async"
+             alt="Quatro telas do Polypodium no celular: ficha do tomate-cereja, gráficos de crescimento e saúde, diário com colheita e foto, e etiqueta com QR code">
       </div>
+      <img class="desktop-shot" src="assets/desktop-pt-1200.webp"
+           srcset="assets/desktop-pt-800.webp 800w, assets/desktop-pt-1200.webp 1200w, assets/desktop-pt-1600.webp 1600w"
+           sizes="(max-width: 960px) calc(100vw - 2.5rem), 928px"
+           width="1200" height="675" loading="lazy" decoding="async"
+           alt="Polypodium no computador: barra lateral com as seções do app e o painel inicial com os cuidados de hoje, a saúde do jardim e as fotos das plantas">
+      <p class="shot-caption">No Windows e no Linux, o app usa a tela inteira, com navegação lateral.</p>
     </section>
 
     <!-- ===================== Download ===================== -->
@@ -631,7 +690,7 @@
         </details>
         <details class="card">
           <summary>O app funciona sem internet?</summary>
-          <p>Sim. O Polypodium é offline-first: plantas, registros, fotos e lembretes ficam no seu aparelho e funcionam sem conexão. A internet só é usada se você ativar a sincronização com um servidor.</p>
+          <p>Sim. O Polypodium é offline-first: plantas, registros, fotos e lembretes ficam no seu aparelho e funcionam sem conexão. A internet só é usada se você ativar a sincronização com um servidor ou baixar a versão mais nova da base Flora Brasil; nas versões baixadas do GitHub, o app também consulta se há atualização.</p>
         </details>
         <details class="card">
           <summary>Preciso criar uma conta?</summary>
