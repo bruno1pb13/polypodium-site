@@ -470,6 +470,30 @@ docker compose up -d</code></pre>
          exige chave. Localizações próximas (até 5 km, ajustável com <code>WEATHER_CLUSTER_KM</code>) formam uma
          região, e só o centro de cada região é enviado ao provedor, uma vez por dia.</p>
 
+      <h2 id="mcp">Acesso por IA / MCP (opcional)</h2>
+      <p>O servidor inclui um servidor <a href="https://modelcontextprotocol.io" rel="noopener">MCP</a>
+         (Model Context Protocol). Com ele, assistentes de IA como o Claude e o Cursor consultam um jardim
+         (plantas, diário, fotos, espécies, locais e previsão do tempo). Se você permitir, eles também
+         registram regas e criam ou editam plantas. As mudanças chegam aos aparelhos no próximo sync.</p>
+      <ol>
+        <li><strong>Ligar no servidor.</strong> O recurso vem desligado. Um administrador liga em
+            <strong>Administração do servidor → Acesso por IA (MCP)</strong>, dentro do app. Ao desligar,
+            todos os tokens param de funcionar na hora.</li>
+        <li><strong>Criar um token.</strong> No menu do workspace, abra <strong>Acesso por IA (MCP)</strong> →
+            <strong>Novo token</strong>. Cada token dá acesso a um único jardim, como somente leitura ou com
+            alterações. Ele aparece uma vez só, e dá para revogá-lo a qualquer momento na mesma tela.</li>
+        <li><strong>Conectar o assistente.</strong> O endereço é <code>https://plantas.seudominio.com/api/v1/mcp</code>,
+            com o token no header <code>Authorization</code>. No Claude Code:</li>
+      </ol>
+
+<pre><code>claude mcp add --transport http polypodium https://plantas.seudominio.com/api/v1/mcp \
+  --header "Authorization: Bearer pmcp_…"</code></pre>
+
+      <p>No Claude Desktop, use o <a href="https://www.npmjs.com/package/mcp-remote" rel="noopener"><code>mcp-remote</code></a>
+         no <code>claude_desktop_config.json</code>. Os conectores do claude.ai exigem login OAuth, que o servidor
+         ainda não oferece. A lista de ferramentas está na
+         <a href="https://github.com/bruno1pb13/Polypodium_server/blob/main/docs/api.md#mcp" rel="noopener">documentação da API</a>.</p>
+
       <h2>Referência: variáveis de ambiente</h2>
       <div class="table-scroll">
         <table>
