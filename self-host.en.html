@@ -470,6 +470,30 @@ docker compose up -d</code></pre>
          no API key. Nearby locations (within 5 km, adjustable with <code>WEATHER_CLUSTER_KM</code>) form a region,
          and only the center of each region is sent to the provider, once a day.</p>
 
+      <h2 id="mcp">AI access / MCP (optional)</h2>
+      <p>The server includes an <a href="https://modelcontextprotocol.io" rel="noopener">MCP</a> server
+         (Model Context Protocol). With it, AI assistants such as Claude and Cursor can look up a garden
+         (plants, diary, photos, species, locations and weather). If you allow it, they can also record
+         waterings and create or edit plants. Changes reach your devices on the next sync.</p>
+      <ol>
+        <li><strong>Turn it on.</strong> It is off by default. An admin turns it on under
+            <strong>Server administration → AI access (MCP)</strong>, inside the app. Turning it off
+            stops every token at once.</li>
+        <li><strong>Create a token.</strong> In the workspace menu, open <strong>AI access (MCP)</strong> →
+            <strong>New token</strong>. Each token reaches a single garden, read only or with changes. It is
+            shown only once, and you can revoke it at any time on the same screen.</li>
+        <li><strong>Connect the assistant.</strong> The address is <code>https://plants.yourdomain.com/api/v1/mcp</code>,
+            with the token in the <code>Authorization</code> header. In Claude Code:</li>
+      </ol>
+
+<pre><code>claude mcp add --transport http polypodium https://plants.yourdomain.com/api/v1/mcp \
+  --header "Authorization: Bearer pmcp_…"</code></pre>
+
+      <p>In Claude Desktop, use <a href="https://www.npmjs.com/package/mcp-remote" rel="noopener"><code>mcp-remote</code></a>
+         in <code>claude_desktop_config.json</code>. claude.ai connectors require OAuth sign-in, which the server
+         doesn't offer yet. The list of tools is in the
+         <a href="https://github.com/bruno1pb13/Polypodium_server/blob/main/docs/api.md#mcp" rel="noopener">API docs</a>.</p>
+
       <h2>Reference: environment variables</h2>
       <div class="table-scroll">
         <table>
