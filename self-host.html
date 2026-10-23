@@ -470,6 +470,32 @@ docker compose up -d</code></pre>
          exige chave. Localizações próximas (até 5 km, ajustável com <code>WEATHER_CLUSTER_KM</code>) formam uma
          região, e só o centro de cada região é enviado ao provedor, uma vez por dia.</p>
 
+      <h3 id="rega-pelo-clima">Rega pelo clima</h3>
+      <p>Com a previsão ligada, o servidor também ajusta a data da próxima rega de cada planta. A frequência
+         que você escolheu continua a mesma; só a data muda, e o app mostra o motivo (por exemplo,
+         “Rega adiada 2 dias pela chuva”).</p>
+      <ul>
+        <li><strong>Chuva adia</strong> a rega, mas só das plantas em localizações marcadas como
+            <strong>Exposto à chuva</strong> (ao ar livre, sem cobertura). Marque isso na tela da localização.</li>
+        <li><strong>Dias quentes e secos adiantam</strong> a rega, e dias amenos a adiam um pouco, em qualquer
+            localização com coordenadas.</li>
+        <li>Para não reagir a uma previsão isolada, a chuva prevista só conta se a previsão do dia anterior
+            também a mostrava, e é ponderada pela probabilidade.</li>
+      </ul>
+      <p>O recurso vem ligado junto com a previsão. Em <strong>Administração do servidor → Rega pelo clima</strong>
+         o administrador pode desligá-lo ou ajustar as regras, que valem para o servidor inteiro:</p>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Regra</th><th>Padrão</th><th>O que faz</th></tr>
+          <tr><td>Chuva mínima</td><td>2 mm</td><td>Chuva diária abaixo disso é ignorada.</td></tr>
+          <tr><td>Chuva aproveitada</td><td>70%</td><td>Parte da chuva que chega às raízes. Com 0% a chuva nunca adia.</td></tr>
+          <tr><td>Adiar no máximo</td><td>7 dias</td><td>Nunca mais que a frequência da planta. 0 desliga o adiamento.</td></tr>
+          <tr><td>Adiantar no máximo</td><td>2 dias</td><td>Nunca mais que metade da frequência. 0 desliga o adiantamento.</td></tr>
+          <tr><td>Gasto mínimo num dia ameno</td><td>50%</td><td>Em relação a um dia típico. Com 100% dias amenos nunca adiam.</td></tr>
+          <tr><td>Gasto máximo num dia quente</td><td>200%</td><td>Em relação a um dia típico. Com 100% o calor nunca adianta.</td></tr>
+        </table>
+      </div>
+
       <h2 id="mcp">Acesso por IA / MCP (opcional)</h2>
       <p>O servidor inclui um servidor <a href="https://modelcontextprotocol.io" rel="noopener">MCP</a>
          (Model Context Protocol). Com ele, assistentes de IA como o Claude e o Cursor consultam um jardim
@@ -509,6 +535,7 @@ docker compose up -d</code></pre>
           <tr><td><code>UPDATE_CHECK</code></td><td><code>false</code> desliga a consulta de versões novas no GitHub. Padrão: ligada.</td></tr>
           <tr><td><code>WEATHER_CLUSTER_KM</code></td><td>Raio da região da previsão do tempo. Padrão: 5 km.</td></tr>
           <tr><td><code>WEATHER_API_URL</code></td><td>Endpoint compatível com o Open-Meteo, para usar outra instância. Padrão: a API pública do Open-Meteo.</td></tr>
+          <tr><td><code>WEATHER_SNAPSHOT_RETENTION_DAYS</code></td><td>Por quantos dias guardar cada previsão como foi emitida, usada pela rega pelo clima. Padrão: 30.</td></tr>
         </table>
       </div>
 

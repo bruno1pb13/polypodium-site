@@ -470,6 +470,32 @@ docker compose up -d</code></pre>
          no API key. Nearby locations (within 5 km, adjustable with <code>WEATHER_CLUSTER_KM</code>) form a region,
          and only the center of each region is sent to the provider, once a day.</p>
 
+      <h3 id="weather-watering">Weather-adjusted watering</h3>
+      <p>With forecasts on, the server also adjusts each plant's next watering date. The interval you chose
+         stays the same; only the date moves, and the app shows why (for example,
+         “Watering postponed 2 days for rain”).</p>
+      <ul>
+        <li><strong>Rain postpones</strong> watering, but only for plants in locations marked
+            <strong>Exposed to rain</strong> (outdoors, uncovered). Set it on the location screen.</li>
+        <li><strong>Hot, dry days bring it forward</strong>, and mild days push it back a little, in any
+            location with coordinates.</li>
+        <li>So that a single forecast doesn't sway it, forecast rain only counts if the previous day's
+            forecast also showed it, and it is weighted by its probability.</li>
+      </ul>
+      <p>It comes on together with forecasts. Under <strong>Server administration → Weather-adjusted watering</strong>
+         an admin can turn it off or tune its rules, which apply to the whole server:</p>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Rule</th><th>Default</th><th>What it does</th></tr>
+          <tr><td>Minimum rain</td><td>2 mm</td><td>Daily rain below this is ignored.</td></tr>
+          <tr><td>Rain that counts</td><td>70%</td><td>Share of the rain that reaches the roots. 0% means rain never postpones.</td></tr>
+          <tr><td>Postpone at most</td><td>7 days</td><td>Never more than the plant's own interval. 0 turns postponing off.</td></tr>
+          <tr><td>Bring forward at most</td><td>2 days</td><td>Never more than half the interval. 0 turns bringing forward off.</td></tr>
+          <tr><td>Least water used on a mild day</td><td>50%</td><td>Compared with a typical day. 100% means mild days never postpone.</td></tr>
+          <tr><td>Most water used on a hot day</td><td>200%</td><td>Compared with a typical day. 100% means heat never brings watering forward.</td></tr>
+        </table>
+      </div>
+
       <h2 id="mcp">AI access / MCP (optional)</h2>
       <p>The server includes an <a href="https://modelcontextprotocol.io" rel="noopener">MCP</a> server
          (Model Context Protocol). With it, AI assistants such as Claude and Cursor can look up a garden
@@ -509,6 +535,7 @@ docker compose up -d</code></pre>
           <tr><td><code>UPDATE_CHECK</code></td><td><code>false</code> turns off checking GitHub for new versions. Default: on.</td></tr>
           <tr><td><code>WEATHER_CLUSTER_KM</code></td><td>Radius of a weather forecast region. Default: 5 km.</td></tr>
           <tr><td><code>WEATHER_API_URL</code></td><td>An Open-Meteo-compatible endpoint, to use another instance. Default: the public Open-Meteo API.</td></tr>
+          <tr><td><code>WEATHER_SNAPSHOT_RETENTION_DAYS</code></td><td>How many days to keep each forecast as issued, used by weather-adjusted watering. Default: 30.</td></tr>
         </table>
       </div>
 
