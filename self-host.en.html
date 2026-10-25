@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Self-hosting — Polypodium</title>
-  <meta name="description" content="Step-by-step guide to hosting your own Polypodium sync server with Docker: installation, HTTPS with Let's Encrypt, first admin account and backups.">
+  <title>Server documentation — Polypodium</title>
+  <meta name="description" content="Polypodium sync server docs: Docker install, HTTPS, building from source, workspaces and gardens, weather forecast, MCP and the API reference.">
   <link rel="canonical" href="https://polypodium.com.br/self-host.en.html">
   <link rel="alternate" hreflang="pt-BR" href="https://polypodium.com.br/self-host.html">
   <link rel="alternate" hreflang="en" href="https://polypodium.com.br/self-host.en.html">
@@ -17,13 +17,13 @@
   <!-- Open Graph / social -->
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Polypodium">
-  <meta property="og:title" content="Self-hosting — Polypodium">
-  <meta property="og:description" content="Step-by-step guide to hosting your own Polypodium sync server with Docker.">
+  <meta property="og:title" content="Server documentation — Polypodium">
+  <meta property="og:description" content="Installation, deployment, workspaces, weather, MCP and API of the Polypodium sync server.">
   <meta property="og:url" content="https://polypodium.com.br/self-host.en.html">
   <meta property="og:image" content="https://polypodium.com.br/assets/og-en.jpg">
   <meta property="og:locale" content="en_US">
   <style>
-    /* ---------- Identidade visual (mesma do index.html) ---------- */
+    /* ---------- Visual identity (same as index.en.html) ---------- */
     @font-face {
       font-family: "Cormorant Garamond";
       src: url("assets/fonts/cormorant-garamond-latin.woff2") format("woff2");
@@ -55,6 +55,13 @@
       --code-bg: rgba(34, 48, 31, 0.06);
       --code-block-bg: #1d271b;
       --code-block-text: #dce6d8;
+      --warn: #a3660a;
+      --warn-bg: rgba(214, 140, 20, 0.12);
+      --m-get: #2f7a4a;
+      --m-post: #2a5f9e;
+      --m-put: #8a5a12;
+      --m-patch: #6b4fa0;
+      --m-delete: #a8392f;
       --shadow: 0 8px 28px rgba(45, 66, 44, 0.10);
       --radius: 16px;
     }
@@ -74,11 +81,19 @@
         --code-bg: rgba(228, 236, 224, 0.08);
         --code-block-bg: #101710;
         --code-block-text: #d5e2d0;
+        --warn: #f0b456;
+        --warn-bg: rgba(240, 180, 86, 0.12);
+        --m-get: #7fd39a;
+        --m-post: #8cb8ef;
+        --m-put: #e8bc6e;
+        --m-patch: #c3a8f0;
+        --m-delete: #f08f86;
         --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
       }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-padding-top: 4.5rem; }
 
     body {
       font-family: -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
@@ -100,7 +115,7 @@
       body::before { opacity: 0.08; filter: invert(1); }
     }
 
-    .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
+    .wrap { max-width: 76rem; margin: 0 auto; padding: 0 1rem; }
 
     h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; line-height: 1.2; }
 
@@ -141,38 +156,67 @@
     }
     .nav-download:hover { background: var(--primary-hover); }
 
-    /* ---------- Layout do guia ---------- */
-    .doc { max-width: 46rem; margin: 0 auto; padding: 3.5rem 0 4rem; }
+    /* ---------- Layout da documentação ---------- */
+    .docs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.5rem; padding-top: 3rem; padding-bottom: 4rem; }
+    @media (min-width: 1000px) {
+      .docs { grid-template-columns: 15rem minmax(0, 1fr); }
+    }
+
+    .toc { font-size: 0.9rem; }
+    .toc details {
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.6rem 0.9rem;
+    }
+    .toc summary { cursor: pointer; font-weight: 600; color: var(--text); }
+    .toc ol { list-style: none; margin-top: 0.5rem; }
+    .toc li { margin: 0.1rem 0; }
+    .toc li li { padding-left: 0.85rem; font-size: 0.85rem; }
+    .toc a { color: var(--text-muted); text-decoration: none; display: block; padding: 0.15rem 0; }
+    .toc a:hover, .toc a.active { color: var(--primary); }
+    .toc a.active { font-weight: 600; }
+    @media (min-width: 1000px) {
+      .toc { position: sticky; top: 4.75rem; align-self: start; max-height: calc(100vh - 6rem); overflow-y: auto; }
+      .toc details { background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; padding: 0; }
+      .toc summary { pointer-events: none; list-style: none; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.75rem; color: var(--text-muted); }
+      .toc summary::-webkit-details-marker { display: none; }
+    }
+
+    .doc { max-width: 48rem; min-width: 0; }
     .doc > h1 { font-size: clamp(2.2rem, 5vw, 3rem); margin-bottom: 0.5rem; }
-    .doc .lead { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2.5rem; }
+    .doc .lead { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1.5rem; }
 
     .doc h2 {
-      font-size: 1.75rem;
-      margin: 2.75rem 0 0.75rem;
-      display: flex;
-      align-items: baseline;
-      gap: 0.65rem;
+      font-size: 2rem;
+      margin: 3.5rem 0 0.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
     }
-    .doc h2 .step {
-      flex: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.1rem;
-      height: 2.1rem;
-      border-radius: 50%;
-      background: var(--chip-bg);
-      color: var(--accent);
-      font-family: -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      transform: translateY(0.3rem);
-    }
-    .doc h3 { font-size: 1.3rem; margin: 1.75rem 0 0.5rem; }
+    .doc h3 { font-size: 1.4rem; margin: 2rem 0 0.5rem; }
+    .doc h4 { font-size: 1rem; margin: 1.5rem 0 0.4rem; }
     .doc p, .doc ul, .doc ol { margin-bottom: 1rem; }
     .doc ul, .doc ol { padding-left: 1.4rem; }
     .doc li { margin-bottom: 0.35rem; }
     .doc li p { margin-bottom: 0.35rem; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: 0.75rem; margin: 1rem 0 1.5rem; }
+    .cards a {
+      display: block;
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .cards a:hover { border-color: var(--accent); }
+    .cards strong { display: block; color: var(--primary); }
+    .cards span { font-size: 0.88rem; color: var(--text-muted); }
 
     code {
       font-family: ui-monospace, "Cascadia Code", Consolas, "Liberation Mono", monospace;
@@ -180,7 +224,9 @@
       background: var(--code-bg);
       border-radius: 6px;
       padding: 0.1em 0.35em;
+      overflow-wrap: anywhere;
     }
+    .code { position: relative; }
     pre {
       background: var(--code-block-bg);
       color: var(--code-block-text);
@@ -192,8 +238,25 @@
       font-size: 0.85rem;
       line-height: 1.55;
     }
-    pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
-    pre .cm { color: #8aa383; } /* comentários dentro dos blocos */
+    pre code { background: none; padding: 0; font-size: inherit; color: inherit; overflow-wrap: normal; }
+    pre .cm { color: #8aa383; } /* comments inside code blocks */
+    .copy {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font: inherit;
+      font-size: 0.75rem;
+      color: var(--code-block-text);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 6px;
+      padding: 0.15rem 0.55rem;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .code:hover .copy, .copy:focus-visible { opacity: 1; }
+    @media (hover: none) { .copy { opacity: 1; } }
 
     .callout {
       background: var(--surface);
@@ -207,6 +270,9 @@
       font-size: 0.95rem;
     }
     .callout strong:first-child { color: var(--accent); }
+    .callout.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+    .callout.warn strong:first-child { color: var(--warn); }
+    .callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
 
     .doc table {
       width: 100%;
@@ -222,6 +288,37 @@
     }
     .doc th { font-weight: 600; }
     .table-scroll { overflow-x: auto; }
+
+    /* ---------- Endpoints ---------- */
+    .ep {
+      font-family: ui-monospace, "Cascadia Code", Consolas, "Liberation Mono", monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 1.75rem 0 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.5rem;
+      overflow-wrap: anywhere;
+    }
+    .m {
+      display: inline-block;
+      min-width: 3.6rem;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border-radius: 6px;
+      padding: 0.1rem 0.4rem;
+      border: 1px solid currentColor;
+    }
+    .m.get { color: var(--m-get); }
+    .m.post { color: var(--m-post); }
+    .m.put, .m.head { color: var(--m-put); }
+    .m.patch { color: var(--m-patch); }
+    .m.delete { color: var(--m-delete); }
+    .auth { font-family: -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif; font-size: 0.78rem; font-weight: 500; color: var(--text-muted); }
+    td .m { min-width: 3.2rem; }
 
     /* ---------- Rodapé ---------- */
     footer {
@@ -257,31 +354,116 @@
     </div>
   </header>
 
-  <main class="wrap">
+  <main class="wrap docs">
+    <aside class="toc" aria-label="Contents">
+      <details>
+        <summary>On this page</summary>
+        <ol>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#install">Installing with Docker</a></li>
+          <li><a href="#https">HTTPS and reverse proxy</a></li>
+          <li><a href="#first-account">First account</a></li>
+          <li><a href="#workspaces">Workspaces and gardens</a>
+            <ol>
+              <li><a href="#ws-add">Adding a workspace</a></li>
+              <li><a href="#ws-gardens">Shared gardens</a></li>
+              <li><a href="#ws-menu">Workspace menu</a></li>
+              <li><a href="#ws-sync">How sync works</a></li>
+            </ol>
+          </li>
+          <li><a href="#administration">Administration</a></li>
+          <li><a href="#weather">Weather forecast</a></li>
+          <li><a href="#weather-watering">Weather-adjusted watering</a></li>
+          <li><a href="#mcp">AI access (MCP)</a>
+            <ol>
+              <li><a href="#mcp-connect">Connecting assistants</a></li>
+              <li><a href="#mcp-tools">Tools</a></li>
+            </ol>
+          </li>
+          <li><a href="#api">API reference</a>
+            <ol>
+              <li><a href="#api-auth">Authentication</a></li>
+              <li><a href="#api-sync">Sync</a></li>
+              <li><a href="#api-photos">Photos</a></li>
+              <li><a href="#api-gardens">Gardens</a></li>
+              <li><a href="#api-mcp-tokens">MCP tokens</a></li>
+              <li><a href="#api-admin">Admin</a></li>
+              <li><a href="#api-weather">Weather and watering</a></li>
+              <li><a href="#api-health">Health and errors</a></li>
+            </ol>
+          </li>
+          <li><a href="#build">Building from source</a></li>
+          <li><a href="#operations">Backups and updates</a></li>
+          <li><a href="#troubleshooting">Troubleshooting</a></li>
+          <li><a href="#env">Environment variables</a></li>
+        </ol>
+      </details>
+    </aside>
+
     <article class="doc">
-      <h1>Your own sync server</h1>
+      <h1>Server documentation</h1>
       <p class="lead">
-        Polypodium works 100% offline — the server is only needed if you want to
-        sync your collection across multiple devices. This guide shows how to get
-        the server running with Docker in a few minutes, no compiling required.
+        Polypodium works 100% offline. The server is optional: with it you sync your collection
+        across devices, keep a backup off your phone, share gardens with other people, get the
+        weather forecast computed in one place and connect AI assistants. This page covers
+        everything from installation to the API.
       </p>
 
-      <h2>What you'll need</h2>
-      <ul>
-        <li>A machine that stays on whenever you want to sync: a VPS, a mini PC,
-            a NAS, or even a computer on your local network.</li>
-        <li><a href="https://docs.docker.com/engine/install/" rel="noopener">Docker</a> with the
-            Docker Compose plugin (included in current installations).</li>
-        <li>Optional, but recommended for access over the internet: a domain (or subdomain)
-            pointing at the machine, to enable HTTPS with Let's Encrypt.</li>
-      </ul>
-      <p>No need to clone a repository or install Dart: the server ships as a ready-made
-         Docker image at <code>ghcr.io/bruno1pb13/polypodium_server</code>.</p>
+      <div class="cards">
+        <a href="#install"><strong>Install in 5 minutes</strong><span>Docker Compose, ready-made image, nothing to compile.</span></a>
+        <a href="#workspaces"><strong>Connect the app</strong><span>Workspaces, accounts and shared gardens.</span></a>
+        <a href="#mcp"><strong>Connect an AI</strong><span>Claude, Cursor and other MCP clients.</span></a>
+        <a href="#api"><strong>API reference</strong><span>Every route under <code>/api/v1</code>.</span></a>
+      </div>
 
-      <h2><span class="step">1</span> Create the configuration files</h2>
-      <p>Create a folder (for example <code>polypodium-server</code>) and, inside it, a
-         <code>docker-compose.yml</code> file with the contents below. It starts two
-         containers: the PostgreSQL database and the Polypodium server.</p>
+      <!-- ================================================================ -->
+      <h2 id="overview">Overview</h2>
+      <p>The server is a single Dart binary that speaks HTTP/JSON and stores everything in PostgreSQL.
+         Photos live in a folder on disk. It ships as a Docker image at
+         <code>ghcr.io/bruno1pb13/polypodium_server</code>, and the source is open, under the MIT license,
+         at <a href="https://github.com/bruno1pb13/Polypodium_server" rel="noopener">github.com/bruno1pb13/Polypodium_server</a>.</p>
+
+      <h3>Concepts</h3>
+      <ul>
+        <li><strong>Account.</strong> An email and password on the server. The first account becomes the
+            admin and creates the others; there is no public sign-up after it.</li>
+        <li><strong>Garden.</strong> The set of data that gets synced: plants, species, locations, pots,
+            soils, diary entries, photos, pesticides and reminders. Every account has a <em>personal
+            garden</em> and can create more to share with other accounts.</li>
+        <li><strong>Workspace.</strong> The app side. Each workspace is a separate database on the device.
+            The <em>local workspace</em> never leaves the device; each <em>remote workspace</em> syncs one
+            garden on one server. Switching workspaces never mixes data.</li>
+        <li><strong>Device.</strong> Each app install has a <code>deviceId</code>. The server is just one
+            more peer in the sync: entity IDs are generated on the device and the server never reassigns them.</li>
+      </ul>
+
+      <h3>What runs on the server</h3>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Component</th><th>Role</th></tr>
+          <tr><td>REST API <code>/api/v1</code></td><td>Login, sync (pull/push), photos, gardens, administration, weather.</td></tr>
+          <tr><td>Weather service</td><td>Off by default. Every hour it groups location coordinates into regions and fetches their forecast from Open-Meteo.</td></tr>
+          <tr><td>MCP server <code>/api/v1/mcp</code></td><td>Off by default. AI assistants read and edit a garden with their own token.</td></tr>
+          <tr><td>Update notice</td><td>Checks GitHub releases every 12 h and tells admins in the app. Can be turned off.</td></tr>
+          <tr><td>Migrations</td><td>Run by themselves at startup, in one transaction. No manual step.</td></tr>
+        </table>
+      </div>
+
+      <!-- ================================================================ -->
+      <h2 id="install">Installing with Docker</h2>
+
+      <h3>Requirements</h3>
+      <ul>
+        <li>An x86-64 machine that stays on: a VPS, mini PC, NAS or a computer on your local network.
+            The published image is <code>linux/amd64</code>; for ARM (e.g. a Raspberry Pi),
+            <a href="#build">build the image</a> yourself.</li>
+        <li><a href="https://docs.docker.com/engine/install/" rel="noopener">Docker</a> with the Docker
+            Compose plugin (included in current installs).</li>
+        <li>For access over the internet: a domain or subdomain pointing at the machine, for HTTPS.</li>
+      </ul>
+
+      <h3>1. Create the files</h3>
+      <p>Create a folder (for example <code>polypodium-server</code>) with a <code>docker-compose.yml</code>:</p>
 
 <pre><code>services:
   db:
@@ -300,16 +482,18 @@
       retries: 10
 
   server:
+    <span class="cm"># Pin a version (e.g. :3.1.0) to update only when you choose.</span>
     image: ghcr.io/bruno1pb13/polypodium_server:latest
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      <span class="cm"># Localhost only: the reverse proxy is what faces the outside.</span>
+      <span class="cm"># On a local network without a proxy, use "8080:8080".</span>
+      - "127.0.0.1:8080:8080"
     environment:
       DATABASE_URL: postgresql://polypodium:${DB_PASSWORD}@db/polypodium
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       APP_ENV: production
       DB_SSL: "false"
-      <span class="cm"># HTTPS is handled by the reverse proxy (step 3).</span>
       BEHIND_PROXY: "true"
       REGISTRATION_TOKEN: ${REGISTRATION_TOKEN:-}
       PHOTOS_DIR: /photos
@@ -323,227 +507,938 @@ volumes:
   db_data:
   photos_data:</code></pre>
 
-      <p>In the same folder, create a <code>.env</code> file with your server's secrets:</p>
+      <p>And a <code>.env</code> in the same folder:</p>
 
-<pre><code><span class="cm"># Database password (used only internally, between the containers)</span>
-DB_PASSWORD=replace-with-a-strong-password
+<pre><code><span class="cm"># PostgreSQL password (only used between the containers)</span>
+DB_PASSWORD=change-to-a-strong-password
 
-<span class="cm"># Key that signs the login tokens. Minimum of 32 characters.</span>
+<span class="cm"># Signs the login tokens. At least 32 characters, unique per server.</span>
 <span class="cm"># Generate one with:  openssl rand -base64 48</span>
-JWT_SECRET=replace-with-a-long-random-key
+JWT_SECRET=change-to-a-long-random-key
 
-<span class="cm"># Optional, recommended if the server is exposed to the internet:</span>
-<span class="cm"># protects the creation of the first account (see step 4).</span>
+<span class="cm"># Recommended on the internet: protects creation of the first account.</span>
+<span class="cm"># Generate one with:  openssl rand -hex 24</span>
 REGISTRATION_TOKEN=</code></pre>
 
-      <div class="callout">
-        <strong>Important:</strong> in production, the server refuses to start if
-        <code>JWT_SECRET</code> is missing or shorter than 32 characters. Keep the
-        <code>.env</code> file somewhere safe — whoever has these values has access to the server.
+      <div class="callout warn">
+        <strong>Secrets.</strong> In production the server refuses to start if <code>JWT_SECRET</code> is
+        missing, is the development value or is shorter than 32 characters. Changing
+        <code>JWT_SECRET</code> later invalidates every session: devices have to sign in again (data is
+        not affected). Don't commit the <code>.env</code>.
       </div>
 
-      <h2><span class="step">2</span> Start the server</h2>
-      <p>Still inside the folder you created, run:</p>
-
-<pre><code>docker compose up -d</code></pre>
-
-      <p>On the first run Docker downloads the images and the server creates the database
-         tables automatically. To check that everything is up:</p>
-
-<pre><code>curl http://localhost:8080/api/v1/health</code></pre>
-
-      <p>If the response comes back with status 200, the server is working. To follow the
-         logs at any time: <code>docker compose logs -f server</code>.</p>
+      <h3>2. Start it</h3>
+<pre><code>docker compose up -d
+docker compose logs -f server      <span class="cm"># Ctrl+C to stop following the logs</span></code></pre>
+      <p>The first run creates the tables. The logs should show
+         <code>Database connected and migrations applied.</code> and
+         <code>Polypodium server listening on http://0.0.0.0:8080</code>. Check it:</p>
+<pre><code>curl http://localhost:8080/api/v1/health
+<span class="cm"># {"status":"ok","version":"1.0.0"}</span></code></pre>
 
       <div class="callout">
-        <strong>Local network only?</strong> If the server will only be reached from inside
-        your home (e.g. <code>http://192.168.0.10:8080</code>), you can skip straight to step 4.
-        The HTTPS setup in step 3 is essential when the server is reachable from the internet.
+        <strong>Local network only?</strong> Change the port to <code>"8080:8080"</code> and, since there will
+        be no proxy, use <code>APP_ENV: development</code> (which waives HTTPS) or keep
+        <code>BEHIND_PROXY: "true"</code>. In the app, the URL looks like
+        <code>http://192.168.0.10:8080</code>. Skip to the <a href="#first-account">first account</a>.
+        On the internet, HTTPS is a must: passwords and tokens travel with every request.
       </div>
 
-      <h2><span class="step">3</span> HTTPS with a reverse proxy (Let's Encrypt)</h2>
-      <p>The configuration above (<code>BEHIND_PROXY: "true"</code>) expects a reverse proxy
-         in front of the server to handle HTTPS. The simplest option is
-         <a href="https://caddyserver.com/" rel="noopener">Caddy</a>, which obtains and renews
-         Let's Encrypt certificates on its own. With your domain already pointing at the
-         machine, install Caddy and use a two-line <code>Caddyfile</code>:</p>
+      <h3>Using a PostgreSQL you already run</h3>
+      <p>Remove the <code>db</code> service and point <code>DATABASE_URL</code> at your database. The user
+         needs to be able to create tables, sequences and indexes in it. In production the connection
+         uses SSL by default; if the database is on the same private network without SSL, set
+         <code>DB_SSL: "false"</code>.</p>
+<pre><code>DATABASE_URL: postgresql://user:password@db.example.lan:5432/polypodium</code></pre>
 
+      <!-- ================================================================ -->
+      <h2 id="https">HTTPS and reverse proxy</h2>
+      <p>With <code>BEHIND_PROXY: "true"</code> the server speaks plain HTTP and expects a proxy in front
+         of it to handle TLS. In this mode it also trusts the <code>X-Forwarded-For</code> header for the
+         client's IP, used by the login rate limit. That's why port 8080 must not be exposed: only the
+         proxy (80/443) should be.</p>
+
+      <h3>Caddy (the simplest)</h3>
+      <p><a href="https://caddyserver.com/" rel="noopener">Caddy</a> gets and renews Let's Encrypt
+         certificates by itself. With the domain pointing at the machine, the <code>Caddyfile</code> is
+         three lines:</p>
 <pre><code>plants.yourdomain.com {
     reverse_proxy 127.0.0.1:8080
 }</code></pre>
 
-      <p>Done: the app can now reach <code>https://plants.yourdomain.com</code>. Alternatives
-         that work just as well, with the same <code>BEHIND_PROXY=true</code>:</p>
+      <h3>Nginx</h3>
+      <p>Nginx caps request bodies at 1 MB by default, which blocks photos (up to 15 MB) and MCP calls
+         carrying photos (up to ~41 MB). Raise <code>client_max_body_size</code>:</p>
+<pre><code>server {
+    listen 443 ssl http2;
+    server_name plants.yourdomain.com;
+
+    ssl_certificate     /etc/letsencrypt/live/plants.yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/plants.yourdomain.com/privkey.pem;
+
+    client_max_body_size 50m;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+}</code></pre>
+
+      <h3>Other options</h3>
       <ul>
-        <li><a href="https://nginxproxymanager.com/" rel="noopener">Nginx Proxy Manager</a> —
-            a web UI for managing proxies and Let's Encrypt certificates;</li>
-        <li>Nginx or Traefik, if you already run one of them on your server;</li>
-        <li>A tunnel such as Cloudflare Tunnel, which also terminates TLS for you.</li>
+        <li><a href="https://nginxproxymanager.com/" rel="noopener">Nginx Proxy Manager</a>: a graphical
+            interface with Let's Encrypt. Under <em>Advanced</em>, add <code>client_max_body_size 50m;</code>.</li>
+        <li>Traefik, if you already use it: an HTTP router to the container's port 8080 is enough.</li>
+        <li>Cloudflare Tunnel: terminates TLS without opening ports. The free plan caps uploads at 100 MB,
+            above what the server accepts.</li>
       </ul>
-      <p>In this setup, keep port 8080 closed to the internet in your firewall — only the
-         proxy (ports 80/443) needs to be exposed.</p>
 
-      <h3>Alternative: the server terminates HTTPS itself</h3>
-      <p>If you'd rather not use a proxy, the server can serve HTTPS directly. In
-         <code>docker-compose.yml</code>, replace <code>BEHIND_PROXY: "true"</code> with:</p>
-
-<pre><code>      BEHIND_PROXY: "false"
+      <h3>No proxy: the server serves HTTPS</h3>
+      <p>Replace <code>BEHIND_PROXY</code> with the certificate paths and mount the folder into the container:</p>
+<pre><code>    environment:
+      BEHIND_PROXY: "false"
       SSL_CERT_PATH: /certs/fullchain.pem
-      SSL_KEY_PATH: /certs/privkey.pem</code></pre>
+      SSL_KEY_PATH: /certs/privkey.pem
+    volumes:
+      - photos_data:/photos
+      - /etc/letsencrypt/live/plants.yourdomain.com:/certs:ro
+    ports:
+      - "443:8080"</code></pre>
+      <p>The certificate is read at startup: after renewing it (e.g. with <code>certbot</code>), restart the
+         container with <code>docker compose restart server</code>. In production the server requires one of
+         the two options, proxy or certificate, and won't come up serving plain HTTP by mistake.</p>
 
-      <p>and mount the certificates folder into the container (under <code>volumes:</code> of
-         the <code>server</code> service):</p>
+      <!-- ================================================================ -->
+      <h2 id="first-account">First account (admin)</h2>
+      <p>The first account created on an empty server becomes the <strong>admin</strong>. From then on
+         sign-up is closed (<code>403 registration is closed</code>) and other accounts can only be created by
+         an admin, inside the app. Creation is guarded by a database lock: two simultaneous requests never
+         produce two admins.</p>
 
-<pre><code>      - /path/to/your/certs:/certs:ro</code></pre>
-
-      <p>In this case, renewing the certificates (e.g. via <code>certbot</code>) is up to you.
-         In production the server requires one of the two options — reverse proxy or
-         certificates — and refuses to start serving plain HTTP on the internet.</p>
-
-      <h2><span class="step">4</span> Create the first account (administrator)</h2>
-      <p>The first account created on a fresh server automatically becomes the
-         <strong>administrator</strong> account. After that, public registration closes: new
-         accounts can only be created by the administrator, inside the app.</p>
-
-      <h3>Without <code>REGISTRATION_TOKEN</code> (local network)</h3>
-      <ol>
-        <li>In the app, open <strong>Settings → Server</strong> (workspaces) and add a remote
-            workspace with your server's URL.</li>
-        <li>The app detects that the server has no accounts yet and offers to create the first
-            one — enter an e-mail and password (minimum of 8 characters) and that's it:
-            you're the admin.</li>
-      </ol>
+      <h3>Without <code>REGISTRATION_TOKEN</code></h3>
+      <p>In the app, open <strong>Manage workspaces → Add remote workspace</strong> and enter the URL. The app
+         calls <code>GET /auth/status</code>, sees there are no accounts yet and shows
+         <strong>Create the server's first account</strong>. The password needs at least 8 characters.</p>
 
       <h3>With <code>REGISTRATION_TOKEN</code> (recommended on the internet)</h3>
-      <p>If you set <code>REGISTRATION_TOKEN</code> in <code>.env</code>, the first account must
-         present that token — so nobody "steals" the admin seat by getting to your freshly
-         installed server first. Create the account with a direct API call:</p>
-
+      <p>Without the token, whoever reached a freshly installed server first would become admin. With it,
+         the first account has to present it. The app doesn't send this token, so create the account
+         through the API and then sign in normally in the app:</p>
 <pre><code>curl -X POST https://plants.yourdomain.com/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "you@example.com",
-    "password": "your-8+-character-password",
+    "password": "your-password-with-8+-characters",
     "registrationToken": "the-value-of-your-REGISTRATION_TOKEN"
   }'</code></pre>
 
-      <p>After that, simply <strong>log in normally through the app</strong> with the e-mail and
-         password you created. Further accounts (family, friends) are created from the server
-         administration screen, inside the app itself.</p>
-
-      <h2><span class="step">5</span> Backups</h2>
-      <p>Your data lives in two places: the PostgreSQL database (plants, species, journal…) and
-         the photos volume. Back up both periodically.</p>
-
-      <h3>Database (<code>pg_dump</code>)</h3>
-
-<pre><code>docker compose exec db pg_dump -U polypodium -d polypodium \
-  &gt; backup-polypodium-$(date +%F).sql</code></pre>
-
-      <p>To restore onto a freshly created server (with the database still empty):</p>
-
-<pre><code>docker compose exec -T db psql -U polypodium -d polypodium \
-  &lt; backup-polypodium-2026-07-10.sql</code></pre>
-
-      <h3>Photos</h3>
-
-<pre><code>docker compose cp server:/photos ./photos-backup-$(date +%F)</code></pre>
-
-      <p>Automate it with a weekly <code>cron</code> job and keep the copies on another machine
-         or a storage service — a backup that lives on the same disk as the server doesn't
-         protect you from that disk failing.</p>
-
-      <h2>Updating the server</h2>
-      <p>To update to the latest image version:</p>
-
-<pre><code>docker compose pull
-docker compose up -d</code></pre>
-
-      <p>Database migrations run automatically at startup — there is no manual step.</p>
-      <p>When a new version comes out, admins see a notice in the app. To know about it, the server checks
-         the releases on GitHub; on networks without internet access, turn it off with <code>UPDATE_CHECK=false</code>.</p>
-
-      <h2>Weather forecast (optional)</h2>
-      <p>The server can show the weather forecast and the season for each location that has coordinates.
-         It is off by default: an admin turns it on under <strong>Server administration</strong>, inside the app.</p>
-      <p>Forecasts come from <a href="https://open-meteo.com" rel="noopener">Open-Meteo</a>, which is free and needs
-         no API key. Nearby locations (within 5 km, adjustable with <code>WEATHER_CLUSTER_KM</code>) form a region,
-         and only the center of each region is sent to the provider, once a day.</p>
-
-      <h3 id="weather-watering">Weather-adjusted watering</h3>
-      <p>With forecasts on, the server also adjusts each plant's next watering date. The interval you chose
-         stays the same; only the date moves, and the app shows why (for example,
-         “Watering postponed 2 days for rain”).</p>
+      <!-- ================================================================ -->
+      <h2 id="workspaces">Workspaces and gardens</h2>
+      <p>In the app, everything to do with servers is under <strong>Manage workspaces</strong> (in the
+         workspace selector at the top, or in Settings). A workspace is a separate set of plants and
+         entries, with its own database on the device:</p>
       <ul>
-        <li><strong>Rain postpones</strong> watering, but only for plants in locations marked
-            <strong>Exposed to rain</strong> (outdoors, uncovered). Set it on the location screen.</li>
-        <li><strong>Hot, dry days bring it forward</strong>, and mild days push it back a little, in any
-            location with coordinates.</li>
-        <li>So that a single forecast doesn't sway it, forecast rain only counts if the previous day's
-            forecast also showed it, and it is weighted by its probability.</li>
+        <li><strong>Local</strong>: always there, no account, never syncs. It's the default for anyone who
+            has never connected a server.</li>
+        <li><strong>Remote</strong>: an account on a server and one garden on that server. You can have
+            several: different servers, different accounts or different gardens on the same server.</li>
       </ul>
-      <p>It comes on together with forecasts. Under <strong>Server administration → Weather-adjusted watering</strong>
-         an admin can turn it off or tune its rules, which apply to the whole server:</p>
+
+      <h3 id="ws-add">Adding a remote workspace</h3>
+      <ol>
+        <li><strong>Address.</strong> In <em>Add remote workspace</em>, enter the full URL, with
+            <code>http://</code> or <code>https://</code> and the port if it isn't the default
+            (<code>https://plants.yourdomain.com</code> or <code>http://192.168.0.10:8080</code>).</li>
+        <li><strong>Account.</strong> On an empty server, the app creates the first account (admin).
+            Otherwise, sign in with email and password. Anyone without an account asks the admin, who
+            creates it in the app.</li>
+        <li><strong>Name.</strong> Name the workspace (e.g. <em>Home greenhouse</em>). The name only applies on this device.</li>
+        <li><strong>Garden.</strong> If the account belongs to shared gardens, the app asks <em>Which
+            garden?</em>. Each garden syncs in its own workspace.</li>
+        <li><strong>Local data.</strong> If the local workspace has data, the app offers <em>Migrate local
+            data</em>: it copies plants, species, locations, entries and photos to the server. The local
+            workspace stays on the device as it was.</li>
+      </ol>
+      <p>At sign-in the app sends its <code>deviceId</code>. The server ties the device to the account and
+         returns a session token valid for 30 days. When it expires, the app shows <em>Session expired</em>
+         and the workspace offers <em>Reconnect</em>.</p>
+
+      <h3 id="ws-gardens">Shared gardens</h3>
+      <p>A garden can have several accounts as members, all syncing the same plants. The personal garden
+         can take members too.</p>
+      <ul>
+        <li><strong>New shared garden</strong> (workspace menu): creates an empty garden on the server, with
+            you as owner, and opens it in a new workspace.</li>
+        <li><strong>Garden members</strong>: the owner adds members by the email of an account that already
+            exists on this server, and removes them. What a member recorded stays in the garden after they leave.</li>
+        <li><strong>Open another garden</strong>: opens a garden the account already belongs to in a new workspace.</li>
+        <li><strong>Leave garden</strong>: a member stops syncing; the data stays on the device. The owner
+            can't leave their own garden.</li>
+      </ul>
       <div class="table-scroll">
         <table>
-          <tr><th>Rule</th><th>Default</th><th>What it does</th></tr>
-          <tr><td>Minimum rain</td><td>2 mm</td><td>Daily rain below this is ignored.</td></tr>
-          <tr><td>Rain that counts</td><td>70%</td><td>Share of the rain that reaches the roots. 0% means rain never postpones.</td></tr>
-          <tr><td>Postpone at most</td><td>7 days</td><td>Never more than the plant's own interval. 0 turns postponing off.</td></tr>
-          <tr><td>Bring forward at most</td><td>2 days</td><td>Never more than half the interval. 0 turns bringing forward off.</td></tr>
-          <tr><td>Least water used on a mild day</td><td>50%</td><td>Compared with a typical day. 100% means mild days never postpone.</td></tr>
-          <tr><td>Most water used on a hot day</td><td>200%</td><td>Compared with a typical day. 100% means heat never brings watering forward.</td></tr>
+          <tr><th>Action</th><th>Owner</th><th>Member</th></tr>
+          <tr><td>Sync, read and edit everything</td><td>yes</td><td>yes</td></tr>
+          <tr><td>See the member list</td><td>yes</td><td>yes</td></tr>
+          <tr><td>Rename the garden</td><td>yes</td><td>no</td></tr>
+          <tr><td>Add and remove members</td><td>yes</td><td>no (only leave)</td></tr>
+          <tr><td>MCP tokens</td><td>sees and revokes everyone's</td><td>only their own</td></tr>
         </table>
       </div>
 
-      <h2 id="mcp">AI access / MCP (optional)</h2>
-      <p>The server includes an <a href="https://modelcontextprotocol.io" rel="noopener">MCP</a> server
-         (Model Context Protocol). With it, AI assistants such as Claude and Cursor can look up a garden
-         (plants, diary, photos, species, locations and weather). If you allow it, they can also record
-         waterings and create or edit plants. Changes reach your devices on the next sync.</p>
+      <h3 id="ws-menu">Workspace menu</h3>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Item</th><th>What it does</th></tr>
+          <tr><td>Rename</td><td>Changes the name on this device only.</td></tr>
+          <tr><td>Reconnect</td><td>Signs in again after an expired session or a disconnect.</td></tr>
+          <tr><td>Disconnect</td><td>Signs out on this device. Downloaded data stays but stops syncing. Nothing is deleted on the server.</td></tr>
+          <tr><td>Garden members</td><td>See <a href="#ws-gardens">shared gardens</a>.</td></tr>
+          <tr><td>AI access (MCP)</td><td>Creates and revokes MCP tokens for this garden. See <a href="#mcp">MCP</a>.</td></tr>
+          <tr><td>Open another garden / New shared garden</td><td>Open a garden on the same server in a new workspace.</td></tr>
+          <tr><td>Server administration</td><td>Admins only. See <a href="#administration">Administration</a>.</td></tr>
+          <tr><td>Delete</td><td>Removes this workspace's plants, entries and photos from this device. The account and the server's data don't change: add the workspace again to download them. Changes not yet synced are lost.</td></tr>
+        </table>
+      </div>
+      <p>The screen also shows how much space each workspace takes on the device, with and without photos.</p>
+
+      <h3 id="ws-sync">How sync works</h3>
+      <ul>
+        <li><strong>When.</strong> With <em>Automatic sync</em> on, every 5 minutes (30 in Android's battery
+            saver). Or by hand, with <em>Sync now</em>.</li>
+        <li><strong>Push.</strong> The app sends local changes in batches of up to 500
+            (<code>POST /sync/receive</code>) and uploads new photos (<code>PUT /photos/…</code>).</li>
+        <li><strong>Pull.</strong> It asks for everything changed since its last cursor
+            (<code>GET /sync/changes?since=…</code>), page by page, and downloads missing photos.</li>
+        <li><strong>Conflicts.</strong> Each row keeps the real time of the edit (<code>updatedAt</code>). The
+            latest edit wins, and on a tie the higher <code>deviceId</code>. The app and the server use the
+            same rule (from the <code>polypodium_core</code> package), so they always reach the same result,
+            with no conflict screen.</li>
+        <li><strong>Deletes.</strong> Nothing is physically deleted: a delete becomes a <em>tombstone</em>
+            (<code>deletedAt</code>) that propagates to the other devices.</li>
+        <li><strong>Compatibility.</strong> The server only sends each device the entry types it declared it
+            understands, and says which entity types it stores. That lets old app versions live alongside
+            new ones in the same garden.</li>
+      </ul>
+
+      <!-- ================================================================ -->
+      <h2 id="administration">Server administration</h2>
+      <p>For admin accounts, the workspace menu shows <strong>Server administration</strong>, with:</p>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Section</th><th>What's there</th></tr>
+          <tr><td>Server</td><td>Version, number of users and the new-version notice, when there is one. The app only tells you; updating is up to you (see <a href="#operations">updating</a>).</td></tr>
+          <tr><td>Users</td><td><em>Add user</em> (email and an 8+ character password), <em>Promote to admin</em>, <em>Demote to member</em>, <em>Disable</em> and <em>Re-enable</em>. The server never lets the last active admin be demoted or disabled.</td></tr>
+          <tr><td>Member permissions</td><td>Whether members can export data and import backups in the app. Admins are never restricted.</td></tr>
+          <tr><td>Weather forecast</td><td>Turns forecast fetching on, shows regions, last update and failures, and has <em>Update now</em>. See <a href="#weather">Weather forecast</a>.</td></tr>
+          <tr><td>Weather-adjusted watering</td><td>Turns it on/off and tunes the rules. See <a href="#weather-watering">Weather-adjusted watering</a>.</td></tr>
+          <tr><td>AI access (MCP)</td><td>Enables the MCP endpoint server-wide. See <a href="#mcp">MCP</a>.</td></tr>
+        </table>
+      </div>
+      <ul>
+        <li><strong>Disabling</strong> an account takes effect immediately: the server re-checks the account on
+            every request, so its session token and MCP tokens stop working at once. Its data, and what it
+            recorded in shared gardens, stay.</li>
+        <li>This version has no password change or account deletion, in the API or the app.</li>
+      </ul>
+
+      <!-- ================================================================ -->
+      <h2 id="weather">Weather forecast</h2>
+      <p>Polypodium shows the forecast and the season for each location that has coordinates, and uses the
+         data to <a href="#weather-watering">adjust watering</a>. The source is
+         <a href="https://open-meteo.com" rel="noopener">Open-Meteo</a>, free and keyless. Who asks for it
+         depends on the workspace:</p>
+      <div class="table-scroll">
+        <table>
+          <tr><th></th><th>Local workspace</th><th>Remote workspace</th></tr>
+          <tr><td>Who fetches the forecast</td><td>The device itself</td><td>Only the server</td></tr>
+          <tr><td>Where it's turned on</td><td>Settings → Weather forecast</td><td>Server administration → Weather forecast</td></tr>
+          <tr><td>Open-Meteo receives</td><td>The device's IP and coordinates rounded to ~1 km</td><td>The server's IP and each region's center</td></tr>
+          <tr><td>Watering rules</td><td>Tuned on the device</td><td>Set by the admin, the same for everyone</td></tr>
+        </table>
+      </div>
+      <p>In a remote workspace the device never calls Open-Meteo, even when the server has the forecast off.
+         That way every member sees the same watering dates.</p>
+
+      <h3>How the server fetches</h3>
       <ol>
-        <li><strong>Turn it on.</strong> It is off by default. An admin turns it on under
-            <strong>Server administration → AI access (MCP)</strong>, inside the app. Turning it off
-            stops every token at once.</li>
-        <li><strong>Create a token.</strong> In the workspace menu, open <strong>AI access (MCP)</strong> →
-            <strong>New token</strong>. Each token reaches a single garden, read only or with changes. It is
-            shown only once, and you can revoke it at any time on the same screen.</li>
-        <li><strong>Connect the assistant.</strong> The address is <code>https://plants.yourdomain.com/api/v1/mcp</code>,
-            with the token in the <code>Authorization</code> header. In Claude Code:</li>
+        <li><strong>Turning it on.</strong> Off by default. When turned on, the first fetch starts right away.</li>
+        <li><strong>Regions.</strong> Every hour the server gathers the coordinates of every non-deleted
+            location, across all gardens. A coordinate within <code>WEATHER_CLUSTER_KM</code> (5 km) of a
+            region's center joins it; otherwise it creates a new region centered on itself. The center never
+            moves afterwards. Each region makes a single request, and only the center goes to the provider.</li>
+        <li><strong>Frequency.</strong> A new region is fetched on the next check; others every
+            <code>WEATHER_REFRESH_HOURS</code> (24 h). A failure is retried after 1 hour. <em>Update now</em>
+            forces a fetch of all of them.</li>
+        <li><strong>Data requested.</strong> Hourly: temperature, humidity, rain, rain probability, weather
+            code (WMO) and wind. Daily: the same plus max/min and ET0 (FAO-56 reference evapotranspiration).
+            Each fetch covers at least 2 past days, which replace the old forecast with observed data.</li>
+      </ol>
+      <p>A database lock keeps two instances from running the job at the same time.</p>
+
+      <h3>Retention</h3>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Data</th><th>How long</th><th>Variable</th></tr>
+          <tr><td>Hourly</td><td>From the last 2 days to the end of the forecast (7 days)</td><td><code>WEATHER_HOURLY_PAST_DAYS</code>, <code>WEATHER_FORECAST_DAYS</code></td></tr>
+          <tr><td>Daily</td><td>~365 days, dropped a month at a time</td><td><code>WEATHER_DAILY_RETENTION_DAYS</code></td></tr>
+          <tr><td>Monthly</td><td>Temperature averages and extremes, total rain, days with ≥ 1 mm and ET0 for each full month, while the region exists</td><td>—</td></tr>
+          <tr><td>Snapshots</td><td>The daily forecast as each fetch issued it, for 30 days (used for watering)</td><td><code>WEATHER_SNAPSHOT_RETENTION_DAYS</code></td></tr>
+          <tr><td>Unused region</td><td>Deleted with its data after 30 days with no location nearby</td><td><code>WEATHER_REGION_IDLE_DAYS</code></td></tr>
+        </table>
+      </div>
+      <p>To use another compatible instance (for example your own Open-Meteo), set
+         <code>WEATHER_API_URL</code>. Region coordinates are never shown to members, because a region can
+         group locations from different accounts; only admins see them, in <code>GET /admin/weather</code>.</p>
+
+      <!-- ================================================================ -->
+      <h2 id="weather-watering">Weather-adjusted watering</h2>
+      <p>With the forecast on, each plant's next watering date is postponed or brought forward by the weather.
+         The frequency you chose doesn't change, only the date, and the app shows why (e.g. “Watering
+         postponed 2 days for rain”). It's on by default, together with the forecast.</p>
+      <p>Plants count when they are active, have a watering frequency, have been watered at least once and sit
+         in a location with coordinates whose region already has a forecast.</p>
+
+      <h3>The calculation</h3>
+      <ul>
+        <li>The plant's frequency is how long one watering lasts on a <em>typical day</em>: the day whose ET0
+            is the region's average over the last 30 days.</li>
+        <li>Each day after watering the plant uses <code>day's ET0 ÷ average</code> of a typical day, bounded
+            between 50% and 200%. Hot, dry days bring watering forward; mild days push it back a little.</li>
+        <li>Only in locations marked <strong>Exposed to rain</strong> (outdoors, uncovered), rain gives back part
+            of that: 70% of the millimetres, converted into typical days, never more than the plant has used
+            since its last watering. Days under 2 mm don't count.</li>
+        <li>The plant is due on the day its use adds up to the frequency, rounded to the nearest day.</li>
+        <li>Past days use observed data. From today on, the latest forecast applies, with rain weighted by its
+            probability and capped by what the previous day's forecast showed for the same date. Rain that only
+            the newest forecast shows doesn't postpone anything yet.</li>
+        <li>Postpones by at most 7 days, never more than the frequency itself. Brings forward by at most 2
+            days, never more than half the frequency, and never to before today.</li>
+      </ul>
+
+      <h3>Tunable rules</h3>
+      <p>In <strong>Server administration → Weather-adjusted watering</strong> (or <code>PATCH /admin/watering</code>).
+         They apply to the whole server. Only changed values are saved; the rest follow the defaults of future
+         versions.</p>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Rule (API field)</th><th>Default</th><th>Range</th><th>Effect</th></tr>
+          <tr><td>Minimum rain (<code>minRainMm</code>)</td><td>2 mm</td><td>0–50</td><td>Daily rain below this is ignored.</td></tr>
+          <tr><td>Rain that counts (<code>rainEfficiency</code>)</td><td>70%</td><td>0–1</td><td>Share of rain that reaches the roots. At 0 rain never postpones.</td></tr>
+          <tr><td>Postpone at most (<code>maxPostponeDays</code>)</td><td>7 days</td><td>0–30</td><td>Also capped at the frequency. 0 turns postponing off.</td></tr>
+          <tr><td>Bring forward at most (<code>maxAdvanceDays</code>)</td><td>2 days</td><td>0–30</td><td>Also capped at half the frequency. 0 turns it off.</td></tr>
+          <tr><td>Minimum use on a mild day (<code>minDemand</code>)</td><td>50%</td><td>0.1–1</td><td>At 1 (100%) mild days never postpone.</td></tr>
+          <tr><td>Maximum use on a hot day (<code>maxDemand</code>)</td><td>200%</td><td>1–5</td><td>At 1 (100%) heat never brings watering forward.</td></tr>
+        </table>
+      </div>
+
+      <!-- ================================================================ -->
+      <h2 id="mcp">AI access (MCP)</h2>
+      <p>The server includes an <a href="https://modelcontextprotocol.io" rel="noopener">MCP</a> (Model
+         Context Protocol) server. With it, assistants such as Claude and Cursor read a garden (plants, diary,
+         photos, catalogs, weather) and, if you allow it, log care with photos, create and edit plants,
+         cuttings, pots, species and locations, and repot plants. Changes reach devices on their next sync,
+         like any other device's.</p>
+
+      <ol>
+        <li><strong>Enable it on the server.</strong> Off by default. An admin turns it on in <em>Server
+            administration → AI access (MCP)</em>. While off, the endpoint answers <code>404 mcp_disabled</code>
+            and nobody can create tokens; existing tokens work again once it's back on.</li>
+        <li><strong>Create a token.</strong> In the workspace menu, <em>AI access (MCP) → New token</em>. Name it
+            (e.g. <em>Claude on my laptop</em>) and choose whether it may make changes. The token
+            (<code>pmcp_…</code>) is shown only once; the screen also shows the address and a ready-made
+            Claude Code command.</li>
+        <li><strong>Connect the assistant</strong> with the address <code>https://plants.yourdomain.com/api/v1/mcp</code>
+            and the header <code>Authorization: Bearer pmcp_…</code>.</li>
       </ol>
 
+      <h3>Token security</h3>
+      <ul>
+        <li>Each token gives access to <strong>a single garden</strong> and belongs to whoever created it. The
+            token alone selects the garden.</li>
+        <li><em>Read only</em> (the default) doesn't see the write tools. <em>Read and write</em> sees them all.</li>
+        <li>The server only keeps a SHA-256 hash. A lost token can't be recovered: revoke it and create another.</li>
+        <li>A token stops working at once if it's revoked, if the account is disabled or if it leaves the garden.</li>
+        <li>Up to 20 tokens per member per garden. The list shows when each was last used.</li>
+      </ul>
+
+      <h3 id="mcp-connect">Connecting assistants</h3>
+      <h4>Claude Code</h4>
 <pre><code>claude mcp add --transport http polypodium https://plants.yourdomain.com/api/v1/mcp \
   --header "Authorization: Bearer pmcp_…"</code></pre>
 
-      <p>In Claude Desktop, use <a href="https://www.npmjs.com/package/mcp-remote" rel="noopener"><code>mcp-remote</code></a>
-         in <code>claude_desktop_config.json</code>. claude.ai connectors require OAuth sign-in, which the server
-         doesn't offer yet. The list of tools is in the
-         <a href="https://github.com/bruno1pb13/Polypodium_server/blob/main/docs/api.md#mcp" rel="noopener">API docs</a>.</p>
+      <h4>Claude Desktop</h4>
+      <p>Through <a href="https://www.npmjs.com/package/mcp-remote" rel="noopener"><code>mcp-remote</code></a>
+         (needs Node.js), in <code>claude_desktop_config.json</code>:</p>
+<pre><code>{
+  "mcpServers": {
+    "polypodium": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://plants.yourdomain.com/api/v1/mcp",
+        "--header",
+        "Authorization:${POLYPODIUM_AUTH}"
+      ],
+      "env": { "POLYPODIUM_AUTH": "Bearer pmcp_…" }
+    }
+  }
+}</code></pre>
+      <p>The header goes through an environment variable because some systems split arguments that contain spaces.</p>
 
-      <h2>Reference: environment variables</h2>
+      <h4>Cursor and other HTTP clients</h4>
+      <p>In <code>.cursor/mcp.json</code> (or your client's equivalent file):</p>
+<pre><code>{
+  "mcpServers": {
+    "polypodium": {
+      "url": "https://plants.yourdomain.com/api/v1/mcp",
+      "headers": { "Authorization": "Bearer pmcp_…" }
+    }
+  }
+}</code></pre>
+      <p>Custom connectors on claude.ai require OAuth sign-in, which the server doesn't offer yet.</p>
+
+      <h4>Testing with curl</h4>
+<pre><code>curl -X POST https://plants.yourdomain.com/api/v1/mcp \
+  -H "Authorization: Bearer pmcp_…" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'</code></pre>
+
+      <h3>Protocol</h3>
+      <p><em>Streamable HTTP</em> transport (revisions <code>2025-06-18</code> and <code>2025-03-26</code>),
+         stateless: each JSON-RPC message is a <code>POST</code>, and the response is plain JSON, with no SSE and
+         no session. Notifications get <code>202</code>, batches are accepted, <code>GET</code>/<code>DELETE</code>
+         answer <code>405</code>, and a missing, invalid or revoked token gets <code>401</code> with
+         <code>WWW-Authenticate: Bearer</code>. Methods: <code>initialize</code>, <code>ping</code>,
+         <code>tools/list</code>, <code>tools/call</code>.</p>
+
+      <h3 id="mcp-tools">Tools</h3>
+      <p>✎ = only for tokens allowed to make changes.</p>
       <div class="table-scroll">
         <table>
-          <tr><th>Variable</th><th>What it's for</th></tr>
-          <tr><td><code>DB_PASSWORD</code></td><td>PostgreSQL password (required).</td></tr>
-          <tr><td><code>JWT_SECRET</code></td><td>Signs the login tokens. Required, minimum of 32 characters, unique per server.</td></tr>
-          <tr><td><code>REGISTRATION_TOKEN</code></td><td>Optional. When set, creating the first account requires this token (step 4).</td></tr>
-          <tr><td><code>BEHIND_PROXY</code></td><td><code>true</code> when HTTPS terminates at a reverse proxy; otherwise provide <code>SSL_CERT_PATH</code>/<code>SSL_KEY_PATH</code>.</td></tr>
-          <tr><td><code>SSL_CERT_PATH</code> / <code>SSL_KEY_PATH</code></td><td>Certificate and key for the server to serve HTTPS directly.</td></tr>
-          <tr><td><code>ALLOWED_ORIGINS</code></td><td>CORS: <code>*</code> or a comma-separated list of origins. Default: <code>*</code>.</td></tr>
-          <tr><td><code>AUTH_RATE_LIMIT_MAX</code> / <code>AUTH_RATE_LIMIT_WINDOW</code></td><td>Brute-force protection on login. Default: 20 requests / 300 s per IP.</td></tr>
-          <tr><td><code>MAX_JSON_BODY_BYTES</code> / <code>MAX_PHOTO_BYTES</code></td><td>Maximum request and photo sizes. Default: 1 MB / 15 MB.</td></tr>
-          <tr><td><code>UPDATE_CHECK</code></td><td><code>false</code> turns off checking GitHub for new versions. Default: on.</td></tr>
-          <tr><td><code>WEATHER_CLUSTER_KM</code></td><td>Radius of a weather forecast region. Default: 5 km.</td></tr>
-          <tr><td><code>WEATHER_API_URL</code></td><td>An Open-Meteo-compatible endpoint, to use another instance. Default: the public Open-Meteo API.</td></tr>
-          <tr><td><code>WEATHER_SNAPSHOT_RETENTION_DAYS</code></td><td>How many days to keep each forecast as issued, used by weather-adjusted watering. Default: 30.</td></tr>
+          <tr><th>Tool</th><th>What it does</th></tr>
+          <tr><td><code>garden_overview</code></td><td>Summary: plants by status, species, locations and pots; plants due for watering or a pesticide reapplication; latest entries.</td></tr>
+          <tr><td><code>list_plants</code></td><td>Plants with species, location, pot and watering state. Filters: text, status, location, pot, species, <code>needsWater</code>; paging.</td></tr>
+          <tr><td><code>get_plant</code></td><td>Full record: species, soil, location, pot, reminders, recent entries, photo count and the cover photo as an image.</td></tr>
+          <tr><td><code>list_entries</code></td><td>Diary entries, newest first, by plant, type and date range.</td></tr>
+          <tr><td><code>list_plant_photos</code></td><td>A plant's photos, with each one's entry and which is the cover.</td></tr>
+          <tr><td><code>get_photos</code></td><td>Up to 6 photos as images: <code>small</code> (512 px), <code>medium</code> (1024, default) or <code>large</code> (1568).</td></tr>
+          <tr><td><code>list_species</code>, <code>list_locations</code>, <code>list_pots</code>, <code>list_soils</code>, <code>list_defensivos</code></td><td>Catalogs.</td></tr>
+          <tr><td><code>get_weather</code></td><td>Forecast and recent history for a location (with the forecast on).</td></tr>
+          <tr><td><code>watering_advice</code></td><td>How the weather moves each plant's watering; <code>onlyChanged</code> keeps only the ones that moved.</td></tr>
+          <tr><td><code>add_entry</code> ✎</td><td>Logs watering, fertilizer, pruning, observation, pests, harvest and more on one or more plants, or on every active plant in a pot, with up to 5 photos.</td></tr>
+          <tr><td><code>add_entry_photos</code> ✎</td><td>Attaches photos to an existing entry (at most 5 per entry).</td></tr>
+          <tr><td><code>delete_entry</code> ✎</td><td>Deletes an entry and its photos, recomputing the plant's last watering/application.</td></tr>
+          <tr><td><code>create_plant</code> ✎, <code>update_plant</code> ✎</td><td>Creates or edits a plant: name, status, species, soil, location, pot, watering frequency.</td></tr>
+          <tr><td><code>create_cutting</code> ✎</td><td>Creates a cutting: records the parent and inherits its species, soil and location, like the app's “Create cutting”.</td></tr>
+          <tr><td><code>repot_plant</code> ✎</td><td>Repots one or more plants: a <code>repotting</code> entry and a change of pot and/or soil, with photos.</td></tr>
+          <tr><td><code>create_pot</code> ✎</td><td>Creates a pot, planter or bed.</td></tr>
+          <tr><td><code>create_species</code> ✎, <code>update_species</code> ✎</td><td>Creates or edits a species' care sheet.</td></tr>
+          <tr><td><code>create_location</code> ✎, <code>update_location</code> ✎</td><td>Creates or edits a location, including coordinates and <code>exposedToRain</code>.</td></tr>
+        </table>
+      </div>
+      <ul>
+        <li><strong>References.</strong> Plants take an id, the 6-character short code on their label or the exact
+            nickname. Species, an id or the exact common/scientific name. Pots, an id, short code or name.</li>
+        <li><strong>Outgoing photos.</strong> Originals (up to 15 MB) are scaled down to JPEG off the request
+            loop, 2 at a time, with the 48 most recent cached.</li>
+        <li><strong>Incoming photos.</strong> <code>photos</code> takes <code>{"url": "https://…"}</code> or
+            <code>{"data": "&lt;base64&gt;"}</code>. JPEG, PNG, WebP and GIF, detected by content. URLs only from
+            public addresses (never loopback, private network or link-local, checking each of up to 3
+            redirects). All are read before anything is written: one bad photo fails the whole call.</li>
+        <li><strong>Writes.</strong> They go through the same path as sync (last-write-wins), as a device named
+            <code>mcp-&lt;token id&gt;</code>. Date-only values become noon, with no time zone, so they never
+            shift to another day in any time zone.</li>
+      </ul>
+
+      <!-- ================================================================ -->
+      <h2 id="api">API reference</h2>
+      <p>Everything lives under <code>/api/v1</code>. Bodies and responses are JSON
+         (<code>Content-Type: application/json</code>), except photo upload and download, which use the image bytes.</p>
+
+      <h3>Headers</h3>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Header</th><th>Use</th></tr>
+          <tr><td><code>Authorization: Bearer &lt;jwt&gt;</code></td><td>Every route except <code>/auth/*</code>, <code>/health</code> and <code>/mcp</code> (which uses the MCP token).</td></tr>
+          <tr><td><code>X-Polypodium-Garden: &lt;id&gt;</code></td><td>Sync, photos and weather. Picks the garden; missing or empty = personal garden. A garden the account doesn't belong to: <code>403 not a member of this garden</code>.</td></tr>
+          <tr><td><code>X-Polypodium-Entry-Types: a,b,…</code></td><td>Pull only: the entry types the client understands. See <a href="#api-sync">Sync</a>.</td></tr>
         </table>
       </div>
 
-      <p>Optional variables only reach the server if they are listed under <code>environment:</code> in
-         <code>docker-compose.yml</code>, for example <code>UPDATE_CHECK: "false"</code>.</p>
+      <h3>Route summary</h3>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Method</th><th>Route</th><th>Access</th></tr>
+          <tr><td><span class="m get">GET</span></td><td><code>/auth/status</code></td><td>public</td></tr>
+          <tr><td><span class="m post">POST</span></td><td><code>/auth/register</code></td><td>public (first account only)</td></tr>
+          <tr><td><span class="m post">POST</span></td><td><code>/auth/login</code></td><td>public</td></tr>
+          <tr><td><span class="m get">GET</span></td><td><code>/sync/changes</code></td><td>garden member</td></tr>
+          <tr><td><span class="m post">POST</span></td><td><code>/sync/receive</code></td><td>garden member</td></tr>
+          <tr><td><span class="m post">POST</span></td><td><code>/sync/ack</code></td><td>garden member</td></tr>
+          <tr><td><span class="m get">GET</span></td><td><code>/sync/status</code></td><td>garden member</td></tr>
+          <tr><td><span class="m put">PUT</span> <span class="m get">GET</span> <span class="m head">HEAD</span></td><td><code>/photos/&lt;photoKey&gt;</code></td><td>garden member</td></tr>
+          <tr><td><span class="m get">GET</span> <span class="m post">POST</span></td><td><code>/gardens</code></td><td>account</td></tr>
+          <tr><td><span class="m patch">PATCH</span></td><td><code>/gardens/&lt;id&gt;</code></td><td>owner</td></tr>
+          <tr><td><span class="m get">GET</span> <span class="m post">POST</span></td><td><code>/gardens/&lt;id&gt;/members</code></td><td>member / owner</td></tr>
+          <tr><td><span class="m delete">DELETE</span></td><td><code>/gardens/&lt;id&gt;/members/&lt;userId&gt;</code></td><td>owner, or the member themselves</td></tr>
+          <tr><td><span class="m get">GET</span> <span class="m post">POST</span></td><td><code>/gardens/&lt;id&gt;/mcp-tokens</code></td><td>member</td></tr>
+          <tr><td><span class="m delete">DELETE</span></td><td><code>/gardens/&lt;id&gt;/mcp-tokens/&lt;tokenId&gt;</code></td><td>token owner or garden owner</td></tr>
+          <tr><td><span class="m get">GET</span></td><td><code>/weather/locations/&lt;id&gt;</code></td><td>garden member</td></tr>
+          <tr><td><span class="m get">GET</span></td><td><code>/weather/watering</code></td><td>garden member</td></tr>
+          <tr><td><span class="m get">GET</span></td><td><code>/admin/me</code></td><td>account</td></tr>
+          <tr><td><span class="m get">GET</span></td><td><code>/admin/status</code></td><td>admin</td></tr>
+          <tr><td><span class="m get">GET</span> <span class="m patch">PATCH</span></td><td><code>/admin/settings</code></td><td>admin</td></tr>
+          <tr><td><span class="m get">GET</span> <span class="m post">POST</span></td><td><code>/admin/users</code></td><td>admin</td></tr>
+          <tr><td><span class="m patch">PATCH</span></td><td><code>/admin/users/&lt;id&gt;/role</code>, <code>/status</code></td><td>admin</td></tr>
+          <tr><td><span class="m get">GET</span> <span class="m post">POST</span></td><td><code>/admin/weather</code>, <code>/admin/weather/refresh</code></td><td>admin</td></tr>
+          <tr><td><span class="m get">GET</span> <span class="m patch">PATCH</span></td><td><code>/admin/watering</code></td><td>admin</td></tr>
+          <tr><td><span class="m post">POST</span></td><td><code>/mcp</code></td><td>MCP token</td></tr>
+          <tr><td><span class="m get">GET</span></td><td><code>/health</code></td><td>public</td></tr>
+        </table>
+      </div>
 
-      <p>Questions or problems? Open an issue on the
-         <a href="https://github.com/bruno1pb13/Polypodium_server" rel="noopener">server repository</a>
+      <!-- ---------- Auth ---------- -->
+      <h3 id="api-auth">Authentication</h3>
+      <p>Login returns a JWT valid for 30 days, carrying the account and the device. The account is re-checked
+         in the database on every request, so disabled accounts lose access at once. <code>/auth/*</code> routes
+         are rate-limited per IP: 20 requests per 300 s (<code>429</code> with <code>Retry-After</code>).</p>
+
+      <p class="ep"><span class="m get">GET</span> /auth/status <span class="auth">public</span></p>
+      <p>Whether the server has any accounts. The app uses it to choose between sign-in and the first account.</p>
+<pre><code>{ "hasUsers": false }</code></pre>
+
+      <p class="ep"><span class="m post">POST</span> /auth/register <span class="auth">public</span></p>
+      <p>Creates the first account, which becomes admin. After that it answers <code>403</code>.
+         <code>registrationToken</code> is only required when <code>REGISTRATION_TOKEN</code> is set.</p>
+<pre><code><span class="cm">// body</span>
+{ "email": "you@example.com", "password": "8+ characters", "registrationToken": "…" }
+<span class="cm">// 201</span>
+{ "token": "eyJ…", "userId": "…", "deviceId": "…", "role": "admin" }</code></pre>
+
+      <p class="ep"><span class="m post">POST</span> /auth/login <span class="auth">public</span></p>
+<pre><code><span class="cm">// body (deviceId and deviceName are optional)</span>
+{ "email": "you@example.com", "password": "…", "deviceId": "uuid", "deviceName": "Pixel 8" }
+<span class="cm">// 200</span>
+{ "token": "eyJ…", "userId": "…", "deviceId": "…", "role": "member" }</code></pre>
+      <p>Without a <code>deviceId</code>, the server generates one. A <code>deviceId</code> belonging to another
+         account gets <code>403 device belongs to another account</code>. Wrong credentials and disabled accounts
+         get <code>401</code>; the response takes the same time whether or not the email exists.</p>
+
+      <!-- ---------- Sync ---------- -->
+      <h3 id="api-sync">Sync</h3>
+      <p>State lives in versioned rows, one per <code>(garden, entity)</code>. Every write gets a
+         <code>rev</code> from a single server-wide sequence, so a pull is “everything with a <code>rev</code>
+         above my cursor”. Entity types: <code>species</code>, <code>plant</code>, <code>entry</code>,
+         <code>entry_photo</code>, <code>location</code>, <code>soil</code>, <code>bed</code> (pots),
+         <code>defensivo</code> (pesticides), <code>reminder</code>.</p>
+<pre><code><span class="cm">// one change</span>
+{
+  "entityType": "plant",
+  "entityId": "uuid-generated-on-the-device",
+  "payload": { … },
+  "updatedAt": "2026-10-24T12:00:00.000Z",
+  "deletedAt": null,
+  "deviceId": "device-uuid",
+  "rev": 42
+}</code></pre>
+
+      <p class="ep"><span class="m get">GET</span> /sync/changes?since=&lt;rev&gt;&amp;limit=&lt;n&gt;&amp;entities=&lt;types&gt;</p>
+      <p>The garden's rows with <code>rev &gt; since</code>, in order. <code>limit</code> from 1 to 1000 (default 100).
+         Repeat while <code>hasMore</code> is <code>true</code>, passing <code>nextCursor</code> as <code>since</code>.</p>
+<pre><code>{
+  "changes": [ … ],
+  "nextCursor": 57,
+  "hasMore": false,
+  "supportedEntities": ["bed", "defensivo", "entry", "entry_photo", "location",
+                        "plant", "reminder", "soil", "species"]
+}</code></pre>
+      <ul>
+        <li><code>X-Polypodium-Entry-Types</code>: the server only sends entries (<code>entry</code>) of the listed
+            types. Without the header, only the original 10 (<code>irrigation</code>, <code>fertilizer</code>,
+            <code>pruning</code>, <code>observation</code>, <code>height</code>, <code>chlorosis</code>,
+            <code>pest</code>, <code>pesticide</code>, <code>other</code>, <code>history</code>); old app versions
+            would get stuck on an unknown type. Current types also include <code>repotting</code> and
+            <code>harvest</code>.</li>
+        <li><code>entities</code> restricts the pull to some entity types, and the response echoes it. The app uses
+            this, with its own cursor, to fetch rows left behind once it learns a new type.</li>
+        <li>Both filters run in the query, so the cursor always advances and there's never an empty page with
+            <code>hasMore: true</code>.</li>
+      </ul>
+
+      <p class="ep"><span class="m post">POST</span> /sync/receive</p>
+      <p>Sends up to 500 changes. The body's <code>deviceId</code> must match the token's. The <code>rev</code>
+         sent is ignored. A write older than the current row has no effect (and no error).</p>
+<pre><code><span class="cm">// body</span>
+{ "deviceId": "uuid", "changes": [ … ] }
+<span class="cm">// 200: types the server doesn't store are dropped and listed</span>
+{ "appliedCount": 3, "ignoredEntityTypes": [] }</code></pre>
+
+      <p class="ep"><span class="m post">POST</span> /sync/ack</p>
+      <p>Records the highest <code>rev</code> the device has pulled from the garden (only moves forward). Informational.</p>
+<pre><code>{ "deviceId": "uuid", "cursor": 57 }</code></pre>
+
+      <p class="ep"><span class="m get">GET</span> /sync/status</p>
+<pre><code>{ "pendingChangeCount": 4, "lastPulledCursor": 57, "serverLatestCursor": 61 }</code></pre>
+
+      <!-- ---------- Photos ---------- -->
+      <h3 id="api-photos">Photos</h3>
+      <p>The <code>photoKey</code> is a plain file name (no <code>/</code> or <code>..</code>), referenced by the
+         <code>photoKey</code> of <code>entry</code> and <code>entry_photo</code> entities. Each garden has its own
+         folder under <code>PHOTOS_DIR</code>.</p>
+      <p class="ep"><span class="m put">PUT</span> /photos/&lt;photoKey&gt;</p>
+      <p>Body: the image bytes, up to <code>MAX_PHOTO_BYTES</code> (15 MB). Response <code>{ "ok": true, "photoKey": "…" }</code>.</p>
+      <p class="ep"><span class="m get">GET</span> /photos/&lt;photoKey&gt;</p>
+      <p>The bytes, with a <code>Content-Type</code> from the extension (jpg, png, webp, gif).</p>
+      <p class="ep"><span class="m head">HEAD</span> /photos/&lt;photoKey&gt;</p>
+      <p><code>200</code> if it exists, <code>404</code> if not. The app uses it to avoid re-uploading what's already there.</p>
+
+      <!-- ---------- Gardens ---------- -->
+      <h3 id="api-gardens">Gardens</h3>
+      <p>A garden the account doesn't belong to answers <code>404</code>, without revealing whether it exists.</p>
+      <p class="ep"><span class="m get">GET</span> /gardens</p>
+<pre><code>{ "gardens": [
+  { "id": "…", "name": "", "personal": true, "role": "owner",
+    "ownerUserId": "…", "ownerEmail": "you@example.com" },
+  { "id": "…", "name": "Vegetables", "personal": false, "role": "member",
+    "ownerUserId": "…", "ownerEmail": "friend@example.com" }
+] }</code></pre>
+      <p>The personal garden comes first; its id is the <code>userId</code>.</p>
+      <p class="ep"><span class="m post">POST</span> /gardens</p>
+      <p><code>{ "name": "Vegetables" }</code> (1 to 100 characters). <code>201</code> with the garden, you as owner.</p>
+      <p class="ep"><span class="m patch">PATCH</span> /gardens/&lt;id&gt; <span class="auth">owner</span></p>
+      <p><code>{ "name": "…" }</code>.</p>
+      <p class="ep"><span class="m get">GET</span> /gardens/&lt;id&gt;/members</p>
+<pre><code>{ "members": [ { "userId": "…", "email": "…", "role": "owner", "addedAt": "…" } ] }</code></pre>
+      <p class="ep"><span class="m post">POST</span> /gardens/&lt;id&gt;/members <span class="auth">owner</span></p>
+      <p><code>{ "email": "…" }</code> of an account on this server. <code>404 account not found</code>,
+         <code>409 already a member</code>.</p>
+      <p class="ep"><span class="m delete">DELETE</span> /gardens/&lt;id&gt;/members/&lt;userId&gt;</p>
+      <p>The owner removes; a member passes their own <code>userId</code> to leave. The owner can't leave their
+         own garden (<code>400</code>).</p>
+
+      <!-- ---------- MCP tokens ---------- -->
+      <h3 id="api-mcp-tokens">MCP tokens</h3>
+      <p class="ep"><span class="m get">GET</span> /gardens/&lt;id&gt;/mcp-tokens</p>
+      <p>A member sees their own tokens; the owner sees all of them. The secret never appears here.
+         <code>lastUsedAt</code> is updated at most once a minute.</p>
+<pre><code>{ "enabled": true, "tokens": [
+  { "id": "…", "name": "Claude Desktop", "tokenPrefix": "pmcp_Eggl_L", "canWrite": true,
+    "createdAt": "…", "lastUsedAt": "…", "userId": "…", "email": "you@example.com" }
+] }</code></pre>
+      <p class="ep"><span class="m post">POST</span> /gardens/&lt;id&gt;/mcp-tokens</p>
+      <p><code>{ "name": "Claude Desktop", "canWrite": false }</code>. <code>201</code> with the same fields plus
+         <code>token</code>, shown only this once. <code>409</code> at the limit of 20; <code>403 mcp_disabled</code>
+         with MCP off.</p>
+      <p class="ep"><span class="m delete">DELETE</span> /gardens/&lt;id&gt;/mcp-tokens/&lt;tokenId&gt;</p>
+      <p>Revokes it. A member revokes their own; the owner, any.</p>
+
+      <!-- ---------- Admin ---------- -->
+      <h3 id="api-admin">Admin</h3>
+      <p class="ep"><span class="m get">GET</span> /admin/me <span class="auth">any account</span></p>
+<pre><code>{ "role": "member", "disabled": false, "canExportData": true, "canImportData": true,
+  "weatherEnabled": true, "mcpEnabled": false }</code></pre>
+      <p class="ep"><span class="m get">GET</span> /admin/status</p>
+<pre><code>{ "uptimeSeconds": 86400, "version": "3.1.0", "userCount": 4,
+  "latestVersion": "3.1.0", "updateAvailable": false }</code></pre>
+      <p class="ep"><span class="m get">GET</span> <span class="m patch">PATCH</span> /admin/settings</p>
+      <p>Fields: <code>allowMemberExport</code>, <code>allowMemberImport</code> (default <code>true</code>),
+         <code>weatherEnabled</code>, <code>mcpEnabled</code> (default <code>false</code>). <code>PATCH</code> takes any
+         subset and returns them all.</p>
+<pre><code>curl -X PATCH https://plants.yourdomain.com/api/v1/admin/settings \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"weatherEnabled": true, "mcpEnabled": true}'</code></pre>
+      <p class="ep"><span class="m get">GET</span> /admin/users</p>
+<pre><code>{ "users": [ { "id": "…", "email": "…", "role": "admin", "disabled": false, "createdAt": "…" } ] }</code></pre>
+      <p class="ep"><span class="m post">POST</span> /admin/users</p>
+      <p><code>{ "email": "…", "password": "8+ characters" }</code>. Creates a member. <code>409</code> if the email exists.</p>
+      <p class="ep"><span class="m patch">PATCH</span> /admin/users/&lt;id&gt;/role</p>
+      <p><code>{ "role": "admin" }</code> or <code>"member"</code>.</p>
+      <p class="ep"><span class="m patch">PATCH</span> /admin/users/&lt;id&gt;/status</p>
+      <p><code>{ "disabled": true }</code>. Demoting or disabling the last active admin: <code>400</code>.</p>
+      <p class="ep"><span class="m get">GET</span> /admin/weather</p>
+      <p>Regions with coordinates, time zone, elevation, <code>lastFetchedAt</code>, <code>lastAttemptAt</code>,
+         <code>lastUsedAt</code> and <code>lastError</code>.</p>
+      <p class="ep"><span class="m post">POST</span> /admin/weather/refresh</p>
+      <p>Fetches every region in use now. <code>{ "skipped": false, "regions": 3, "fetched": 3, "failed": 0 }</code>;
+         <code>409</code> with the forecast off.</p>
+      <p class="ep"><span class="m get">GET</span> <span class="m patch">PATCH</span> /admin/watering</p>
+      <p>The <a href="#weather-watering">watering rules</a> plus <code>enabled</code>, with <code>defaults</code> and
+         <code>limits</code>. <code>PATCH</code> takes any subset; <code>null</code> goes back to the default; an
+         unknown or out-of-range field: <code>400</code>.</p>
+
+      <!-- ---------- Weather ---------- -->
+      <h3 id="api-weather">Weather and watering</h3>
+      <p class="ep"><span class="m get">GET</span> /weather/locations/&lt;id&gt;?days=7&amp;months=0</p>
+      <p>Forecast for one of the garden's locations. <code>days</code>: past days in <code>daily</code> (default 7);
+         <code>months</code>: full months in <code>monthly</code> (default 0). Hours and dates are in the region's time zone.</p>
+<pre><code>{
+  "locationId": "…", "timezone": "America/Sao_Paulo", "elevation": 737.0,
+  "fetchedAt": "2026-10-24T12:00:03.000Z",
+  "hourly":  [{ "time": "2026-10-24T13:00", "temperature": 23.1, "humidity": 60,
+                "precipitation": 0.0, "precipitationProbability": 10,
+                "weatherCode": 2, "windSpeed": 9.4 }],
+  "daily":   [{ "date": "2026-10-24", "weatherCode": 95, "temperatureMax": 23.6,
+                "temperatureMin": 16.2, "precipitationSum": 22.9,
+                "precipitationProbabilityMax": 100, "windSpeedMax": 10.1, "et0": 2.2 }],
+  "monthly": [{ "month": "2026-09", "days": 30, "temperatureMaxAvg": 25.1,
+                "temperatureMinAvg": 14.0, "temperatureMax": 31.2, "temperatureMin": 9.8,
+                "precipitationSum": 88.4, "rainyDays": 9, "et0Sum": 96.0 }]
+}</code></pre>
+      <p>Errors, all <code>404</code> with a <code>code</code>: <code>weather_disabled</code>,
+         <code>location_not_found</code>, <code>no_coordinates</code>, <code>weather_pending</code> (region not
+         fetched yet).</p>
+
+      <p class="ep"><span class="m get">GET</span> /weather/watering</p>
+<pre><code>{
+  "generatedAt": "2026-10-24T14:00:00.000Z",
+  "plants": [{
+    "plantId": "…", "locationId": "…",
+    "lastWateredAt": "2026-10-21T08:30:00.000", "frequencyDays": 4,
+    "exposedToRain": true,
+    "dueDate": "2026-10-25", "adjustedDueDate": "2026-10-27",
+    "shiftDays": 2, "reason": "rain", "rainMm": 12.4,
+    "forecastFetchedAt": "2026-10-24T09:00:02.000Z"
+  }]
+}</code></pre>
+      <p><code>shiftDays &gt; 0</code> postpones (<code>reason</code> <code>rain</code> or <code>cool</code>);
+         <code>&lt; 0</code> brings forward (<code>heat</code>). <code>lastWateredAt</code> and <code>frequencyDays</code>
+         are the values used: the app only applies the shift while its own match. <code>404 weather_disabled</code>
+         or <code>404 watering_disabled</code> make the app go back to the normal dates.</p>
+
+      <!-- ---------- Health ---------- -->
+      <h3 id="api-health">Health and errors</h3>
+      <p class="ep"><span class="m get">GET</span> /health <span class="auth">public</span></p>
+      <p><code>{ "status": "ok", "version": "1.0.0" }</code>, where <code>version</code> is the API's. The server
+         version is in <code>/admin/status</code>. Good for proxy or monitoring health checks.</p>
+      <p>Errors come as <code>{ "error": "message" }</code>, sometimes with a stable <code>code</code>:</p>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Status</th><th>When</th></tr>
+          <tr><td><code>400</code></td><td>Invalid body, missing field, batch limit, rule out of range.</td></tr>
+          <tr><td><code>401</code></td><td>No token, invalid or expired token, wrong credentials, disabled account.</td></tr>
+          <tr><td><code>403</code></td><td>Not allowed: not an admin, not the owner, not a garden member, sign-up closed.</td></tr>
+          <tr><td><code>404</code></td><td>Not found, or a feature turned off (<code>weather_disabled</code>, <code>watering_disabled</code>, <code>mcp_disabled</code>).</td></tr>
+          <tr><td><code>409</code></td><td>Conflict: email already registered, already a member, token limit.</td></tr>
+          <tr><td><code>413</code></td><td>Body over <code>MAX_JSON_BODY_BYTES</code>, <code>MAX_PHOTO_BYTES</code> or <code>MAX_MCP_BODY_BYTES</code>.</td></tr>
+          <tr><td><code>429</code></td><td>Rate limit on <code>/auth/*</code>.</td></tr>
+        </table>
+      </div>
+      <p>CORS: <code>ALLOWED_ORIGINS</code> is <code>*</code> by default; with a list, only listed origins are
+         echoed back. The native app doesn't depend on CORS.</p>
+
+      <!-- ================================================================ -->
+      <h2 id="build">Building from source</h2>
+      <p>The ready-made image suits almost everyone. Build it yourself to review the code, run without Docker,
+         contribute or produce an image for another architecture.</p>
+
+      <h3>Requirements</h3>
+      <ul>
+        <li>Stable <a href="https://dart.dev/get-dart" rel="noopener">Dart SDK</a> 3.</li>
+        <li><code>git</code> and access to GitHub: the shared <code>polypodium_core</code> package (conflict rule
+            and weather calculation) is a git dependency, fetched by <code>dart pub get</code>.</li>
+        <li>PostgreSQL to run it and for the tests (the Compose setup uses version 16).</li>
+      </ul>
+
+      <h3>Running in development</h3>
+<pre><code>git clone https://github.com/bruno1pb13/Polypodium_server.git
+cd Polypodium_server
+cp .env.example .env              <span class="cm"># adjust DATABASE_URL</span>
+dart pub get
+set -a; source .env; set +a
+dart run bin/server.dart</code></pre>
+      <p>With <code>APP_ENV=development</code> (the default) the server accepts HTTP, doesn't require SSL to the
+         database and accepts the development <code>JWT_SECRET</code>.</p>
+
+      <h3>Native binary</h3>
+<pre><code>dart compile exe \
+  -DSERVER_VERSION=$(git describe --tags --always | sed 's/^v//') \
+  bin/server.dart -o polypodium_server</code></pre>
+      <p>The binary doesn't need Dart to run. <code>SERVER_VERSION</code> is the version shown to admins and
+         compared with the latest release; without it the version is <code>dev</code>, which is never reported as outdated.</p>
+
+      <h3>Docker image</h3>
+<pre><code>docker build --build-arg SERVER_VERSION=3.1.0 -t polypodium_server:3.1.0 .
+
+<span class="cm"># Another architecture (e.g. Raspberry Pi), with buildx:</span>
+docker buildx build --platform linux/arm64 \
+  --build-arg SERVER_VERSION=3.1.0 -t polypodium_server:3.1.0-arm64 --load .</code></pre>
+      <p>The <code>Dockerfile</code> compiles in a <code>dart:stable</code> image and copies only the binary into a
+         <code>debian:bookworm-slim</code> one. The repository's <code>docker-compose.yml</code> builds locally:
+         <code>docker compose up -d --build</code>.</p>
+
+      <h3>Without Docker (systemd)</h3>
+<pre><code><span class="cm"># /etc/polypodium/server.env</span>
+DATABASE_URL=postgresql://polypodium:password@localhost/polypodium
+JWT_SECRET=…
+APP_ENV=production
+DB_SSL=false
+BEHIND_PROXY=true
+PHOTOS_DIR=/var/lib/polypodium/photos
+PORT=8080</code></pre>
+<pre><code><span class="cm"># /etc/systemd/system/polypodium.service</span>
+[Unit]
+Description=Polypodium sync server
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+User=polypodium
+EnvironmentFile=/etc/polypodium/server.env
+ExecStart=/opt/polypodium/polypodium_server
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<pre><code>sudo useradd --system --home /var/lib/polypodium polypodium
+sudo install -d -o polypodium /var/lib/polypodium/photos
+sudo systemctl daemon-reload
+sudo systemctl enable --now polypodium
+journalctl -u polypodium -f</code></pre>
+
+      <h3>Tests</h3>
+      <div class="callout warn">
+        <strong>Warning:</strong> the tests use the database in <code>DATABASE_URL</code> and <strong>delete data</strong>.
+        Never run them against a real database.
+      </div>
+<pre><code>docker run -d --name pp-test -p 5433:5432 \
+  -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=polypodium postgres:16-alpine
+
+export DATABASE_URL=postgresql://postgres:postgres@localhost:5433/polypodium
+dart analyze --fatal-infos
+dart test</code></pre>
+      <p>Test files run one at a time (<code>dart_test.yaml</code>), because one file's migrations would deadlock
+         against another's writes. CI runs <code>analyze</code> and <code>test</code> on every PR.</p>
+
+      <h3>Releases</h3>
+      <ul>
+        <li>Every push to <code>main</code> publishes <code>:latest</code>, with the version from <code>git describe</code>
+            (e.g. <code>3.1.0-3-gabc1234</code>).</li>
+        <li>Publishing a <code>vX.Y.Z</code> release on GitHub publishes <code>:X.Y.Z</code> and <code>:latest</code>.</li>
+      </ul>
+
+      <!-- ================================================================ -->
+      <h2 id="operations">Backups and updates</h2>
+      <p>Data lives in two places: PostgreSQL (everything but photos) and the photos volume. Back up both.</p>
+
+      <h3>Backup</h3>
+<pre><code><span class="cm"># Database</span>
+docker compose exec -T db pg_dump -U polypodium -d polypodium -Fc \
+  &gt; polypodium-$(date +%F).dump
+
+<span class="cm"># Photos</span>
+docker compose cp server:/photos ./photos-$(date +%F)</code></pre>
+      <p>Automate it with <code>cron</code> and keep copies on another machine: a backup on the same disk doesn't
+         protect against that disk failing. A daily example at 3 a.m.:</p>
+<pre><code>0 3 * * * cd /srv/polypodium-server &amp;&amp; docker compose exec -T db pg_dump -U polypodium -d polypodium -Fc &gt; backups/polypodium-$(date +\%F).dump</code></pre>
+
+      <h3>Restore</h3>
+<pre><code>docker compose up -d db
+docker compose exec -T db pg_restore -U polypodium -d polypodium --clean --if-exists \
+  &lt; polypodium-2026-10-24.dump
+docker compose cp ./photos-2026-10-24/. server:/photos
+docker compose up -d</code></pre>
+      <p>For a plain SQL backup (<code>pg_dump</code> without <code>-Fc</code>), restore with <code>psql</code> into an empty database.</p>
+
+      <h3>Updating</h3>
+      <div class="callout warn">
+        <strong>Back up first.</strong> Migrations run by themselves at startup, in one transaction: if something
+        fails the database stays as it was and the server doesn't start. But a migrated database may not work
+        with the previous version; going back means restoring the backup.
+      </div>
+<pre><code>docker compose pull
+docker compose up -d
+docker compose logs -f server</code></pre>
+      <p>With a pinned image version, change the tag in <code>docker-compose.yml</code> first. Each version's
+         notes are in the <a href="https://github.com/bruno1pb13/Polypodium_server/releases" rel="noopener">releases</a>.
+         The new-version notice in the app comes from a GitHub check every 12 h; on networks without internet,
+         turn it off with <code>UPDATE_CHECK=false</code>.</p>
+      <p>Devices on older app versions keep syncing with newer servers: the server only sends them what they understand.</p>
+
+      <!-- ================================================================ -->
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Symptom</th><th>Cause and fix</th></tr>
+          <tr><td>Server won't start: <code>No TLS configured</code></td><td>In production, set <code>BEHIND_PROXY=true</code> (with a proxy) or <code>SSL_CERT_PATH</code> and <code>SSL_KEY_PATH</code>.</td></tr>
+          <tr><td>Server won't start: <code>JWT_SECRET …</code></td><td>Use a random value of 32+ characters: <code>openssl rand -base64 48</code>.</td></tr>
+          <tr><td>SSL error connecting to the database</td><td>Database without SSL on a private network: <code>DB_SSL=false</code>.</td></tr>
+          <tr><td>App: “Server unavailable or invalid URL”</td><td>Check the scheme and port in the URL. Try <code>curl https://…/api/v1/health</code> from the same device/network.</td></tr>
+          <tr><td>Photos don't upload through the proxy (<code>413</code>)</td><td>Raise the proxy's limit, e.g. <code>client_max_body_size 50m;</code> in Nginx.</td></tr>
+          <tr><td>Many <code>429</code>s at login</td><td>Behind a proxy without <code>BEHIND_PROXY=true</code>, every client seems to come from the same IP. Or adjust <code>AUTH_RATE_LIMIT_MAX</code>.</td></tr>
+          <tr><td><code>registration is closed</code></td><td>The server already has accounts. Ask an admin to create yours.</td></tr>
+          <tr><td>“Session expired”</td><td>The token lasts 30 days, or <code>JWT_SECRET</code> changed. Use <em>Reconnect</em>.</td></tr>
+          <tr><td>Location without a forecast (<code>weather_pending</code>)</td><td>Its region hasn't been fetched yet: wait for the next hour or use <em>Update now</em>. Check <code>lastError</code> in <code>GET /admin/weather</code>.</td></tr>
+          <tr><td>Watering doesn't change with rain</td><td>The location needs coordinates and <em>Exposed to rain</em>, and the plant a frequency and a past watering.</td></tr>
+          <tr><td>MCP assistant gets <code>401</code> or <code>404</code></td><td><code>401</code>: wrong or revoked token, or the account left the garden. <code>404 mcp_disabled</code>: an admin has to turn MCP on.</td></tr>
+        </table>
+      </div>
+
+      <!-- ================================================================ -->
+      <h2 id="env">Environment variables</h2>
+      <p>With Docker, a variable only reaches the server if it's under <code>environment:</code> in
+         <code>docker-compose.yml</code> (for example <code>UPDATE_CHECK: "false"</code>).</p>
+
+      <h3>Essentials</h3>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Variable</th><th>Default</th><th>Purpose</th></tr>
+          <tr><td><code>DATABASE_URL</code></td><td><code>postgresql://postgres:postgres@localhost/polypodium</code></td><td>PostgreSQL connection.</td></tr>
+          <tr><td><code>JWT_SECRET</code></td><td>development value</td><td>Signs session tokens. Required in production, 32+ characters.</td></tr>
+          <tr><td><code>APP_ENV</code></td><td><code>development</code></td><td>Any other value turns on the production requirements (strong secret, TLS, database SSL).</td></tr>
+          <tr><td><code>DB_SSL</code></td><td><code>false</code> in dev, <code>true</code> in production</td><td>SSL on the database connection.</td></tr>
+          <tr><td><code>PORT</code></td><td><code>8080</code></td><td>Listening port.</td></tr>
+          <tr><td><code>PHOTOS_DIR</code></td><td><code>./photos</code> (<code>/photos</code> in the image)</td><td>Photo folder, one subfolder per garden.</td></tr>
+        </table>
+      </div>
+
+      <h3>HTTPS and security</h3>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Variable</th><th>Default</th><th>Purpose</th></tr>
+          <tr><td><code>BEHIND_PROXY</code></td><td><code>false</code></td><td><code>true</code> when TLS ends at a proxy; trusts <code>X-Forwarded-For</code>.</td></tr>
+          <tr><td><code>SSL_CERT_PATH</code> / <code>SSL_KEY_PATH</code></td><td>—</td><td>Certificate and key to serve HTTPS directly.</td></tr>
+          <tr><td><code>REGISTRATION_TOKEN</code></td><td>—</td><td>Requires this value to create the first account.</td></tr>
+          <tr><td><code>ALLOWED_ORIGINS</code></td><td><code>*</code></td><td>CORS: <code>*</code> or a comma-separated list.</td></tr>
+          <tr><td><code>AUTH_RATE_LIMIT_MAX</code></td><td><code>20</code></td><td>Requests per IP on <code>/auth/*</code> per window.</td></tr>
+          <tr><td><code>AUTH_RATE_LIMIT_WINDOW</code></td><td><code>300</code></td><td>Window length, in seconds.</td></tr>
+        </table>
+      </div>
+
+      <h3>Limits</h3>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Variable</th><th>Default</th><th>Purpose</th></tr>
+          <tr><td><code>MAX_JSON_BODY_BYTES</code></td><td>1 MB</td><td>JSON body for auth, sync and admin.</td></tr>
+          <tr><td><code>MAX_PHOTO_BYTES</code></td><td>15 MB</td><td>One photo, on upload and via MCP.</td></tr>
+          <tr><td><code>MAX_MCP_BODY_BYTES</code></td><td>JSON + 40 MB</td><td>One MCP request, which may carry two base64 photos.</td></tr>
+        </table>
+      </div>
+
+      <h3>Weather and version</h3>
+      <div class="table-scroll">
+        <table>
+          <tr><th>Variable</th><th>Default</th><th>Range</th><th>Purpose</th></tr>
+          <tr><td><code>WEATHER_API_URL</code></td><td>Open-Meteo public API</td><td>—</td><td>Open-Meteo-compatible endpoint.</td></tr>
+          <tr><td><code>WEATHER_CLUSTER_KM</code></td><td>5</td><td>0.1–100</td><td>Region radius.</td></tr>
+          <tr><td><code>WEATHER_REFRESH_HOURS</code></td><td>24</td><td>1–168</td><td>Time between fetches of a region.</td></tr>
+          <tr><td><code>WEATHER_FORECAST_DAYS</code></td><td>7</td><td>1–16</td><td>Forecast days.</td></tr>
+          <tr><td><code>WEATHER_HOURLY_PAST_DAYS</code></td><td>2</td><td>0–92</td><td>Past days of hourly data.</td></tr>
+          <tr><td><code>WEATHER_DAILY_RETENTION_DAYS</code></td><td>365</td><td>7–3650</td><td>Daily data retention.</td></tr>
+          <tr><td><code>WEATHER_REGION_IDLE_DAYS</code></td><td>30</td><td>1–3650</td><td>Unused days before a region is deleted.</td></tr>
+          <tr><td><code>WEATHER_SNAPSHOT_RETENTION_DAYS</code></td><td>30</td><td>2–3650</td><td>Retention of forecasts as issued.</td></tr>
+          <tr><td><code>UPDATE_CHECK</code></td><td><code>true</code></td><td>—</td><td><code>false</code> turns off the GitHub version check.</td></tr>
+        </table>
+      </div>
+      <p>Turning on the forecast, weather-adjusted watering and MCP doesn't use variables: they are settings the
+         admin changes in the app, stored in the database.</p>
+
+      <p>Questions or problems? Open an issue in the
+         <a href="https://github.com/bruno1pb13/Polypodium_server/issues" rel="noopener">server repository</a>
          or write to <a href="mailto:bruno1pb13@gmail.com">bruno1pb13@gmail.com</a>.</p>
     </article>
   </main>
@@ -559,5 +1454,47 @@ docker compose up -d</code></pre>
     </div>
   </footer>
 
+  <script>
+    // Copy buttons on code blocks and highlighting of the current section in the contents.
+    (function () {
+      var toc = document.querySelector(".toc details");
+      if (toc && window.matchMedia("(min-width: 1000px)").matches) toc.open = true;
+      var copyLabel = "Copy", copiedLabel = "Copied";
+      document.querySelectorAll(".doc pre").forEach(function (pre) {
+        var box = document.createElement("div");
+        box.className = "code";
+        pre.parentNode.insertBefore(box, pre);
+        box.appendChild(pre);
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "copy";
+        btn.textContent = copyLabel;
+        btn.addEventListener("click", function () {
+          var text = pre.innerText.replace(/\n$/, "");
+          if (!navigator.clipboard) return;
+          navigator.clipboard.writeText(text).then(function () {
+            btn.textContent = copiedLabel;
+            setTimeout(function () { btn.textContent = copyLabel; }, 1500);
+          }, function () {});
+        });
+        box.appendChild(btn);
+      });
+
+      var links = {};
+      document.querySelectorAll(".toc a").forEach(function (a) { links[a.getAttribute("href").slice(1)] = a; });
+      var heads = document.querySelectorAll(".doc h2[id], .doc h3[id]");
+      if (!("IntersectionObserver" in window)) return;
+      var current;
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting || !links[e.target.id]) return;
+          if (current) current.classList.remove("active");
+          current = links[e.target.id];
+          current.classList.add("active");
+        });
+      }, { rootMargin: "-10% 0px -80% 0px" });
+      heads.forEach(function (h) { observer.observe(h); });
+    })();
+  </script>
 </body>
 </html>
