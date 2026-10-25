@@ -36,7 +36,7 @@
 </head>
 <body>
   <h1>Privacy Policy — Polypodium</h1>
-  <p class="meta">Last updated: October 23, 2026 · <a href="privacidade.html">Versão em português</a></p>
+  <p class="meta">Last updated: October 24, 2026 · <a href="privacidade.html">Versão em português</a></p>
 
   <p><strong>Summary: the Polypodium developer does not collect, store, or have access to any of your data.</strong>
   Polypodium is an offline-first plant collection management app. All data stays on your device and, optionally,
@@ -68,12 +68,15 @@
     <li>Whoever operates the server is responsible for the data stored on it, including backups and account deletion.</li>
     <li>If the admin turns on the weather forecast, the server queries <a href="https://open-meteo.com">Open-Meteo</a>
     sending only approximate coordinates: the center of a region a few kilometers wide, never a plant's exact
-    location. The server also checks GitHub to tell the admin about new versions.</li>
+    location. The server makes the request, so Open-Meteo sees the server's IP address, not your device's. The server also checks GitHub to tell the admin about new versions.</li>
   </ul>
   <p>If you never configure a server, none of your data leaves your device, with one optional exception: if you turn
-  on the <strong>weather forecast</strong> in the app's settings (it starts off), the device queries
-  <a href="https://open-meteo.com">Open-Meteo</a> sending only your locations' coordinates rounded to about 1 km.
-  Nothing else is sent.</p>
+  on the <strong>weather forecast analysis</strong> (under Settings › Weather forecast, or on the welcome screen;
+  it starts off and the app tells you what will be sent before turning it on), the device queries
+  <a href="https://open-meteo.com">Open-Meteo</a>, a third-party service, about once a day. It receives
+  <strong>your device's IP address</strong> and <strong>your locations' coordinates rounded to about 1 km</strong>.
+  Names, plants, photos and entries are never sent. Turning the analysis off deletes the forecasts stored on the
+  device.</p>
 
   <h2>5. Connections that send none of your data</h2>
   <p>Even without a server, the app may go online in these cases. None of them sends any of your data; as with
