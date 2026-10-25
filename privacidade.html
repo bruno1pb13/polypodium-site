@@ -36,7 +36,7 @@
 </head>
 <body>
   <h1>Política de Privacidade — Polypodium</h1>
-  <p class="meta">Última atualização: 23 de outubro de 2026 · <a href="privacy.html">English version</a></p>
+  <p class="meta">Última atualização: 24 de outubro de 2026 · <a href="privacy.html">English version</a></p>
 
   <p><strong>Resumo: o desenvolvedor do Polypodium não coleta, não armazena e não tem acesso a nenhum dado seu.</strong>
   O Polypodium é um aplicativo <em>offline-first</em> de gerenciamento de coleções de plantas. Todos os dados
@@ -70,12 +70,15 @@
     <li>Quem opera o servidor é o responsável pelos dados armazenados nele, incluindo backups e exclusão de contas.</li>
     <li>Se o administrador ativar a previsão do tempo, o servidor consulta o <a href="https://open-meteo.com">Open-Meteo</a>
     enviando apenas coordenadas aproximadas: o centro de uma região de alguns quilômetros, nunca a localização exata
-    de uma planta. O servidor também consulta o GitHub para avisar o administrador sobre versões novas.</li>
+    de uma planta. Quem faz a consulta é o servidor, então o Open-Meteo vê o endereço IP dele, não o do seu aparelho. O servidor também consulta o GitHub para avisar o administrador sobre versões novas.</li>
   </ul>
   <p>Se você não configurar nenhum servidor, nenhum dado seu sai do aparelho, com uma exceção opcional: se você ligar
-  a <strong>previsão do tempo</strong> nas configurações do app (ela vem desligada), o aparelho consulta o
-  <a href="https://open-meteo.com">Open-Meteo</a> enviando apenas as coordenadas das suas localizações arredondadas
-  para cerca de 1 km. Nada mais é enviado.</p>
+  a <strong>análise da previsão do tempo</strong> (em Configurações › Previsão do tempo, ou na tela de boas-vindas;
+  ela vem desligada e o app avisa o que será enviado antes de ligar), o aparelho consulta o
+  <a href="https://open-meteo.com">Open-Meteo</a>, um serviço de terceiros, cerca de uma vez por dia. Ele recebe o
+  <strong>endereço IP do aparelho</strong> e as <strong>coordenadas das suas localizações arredondadas para cerca de
+  1 km</strong>. Nomes, plantas, fotos e registros nunca são enviados. Desligar a análise apaga as previsões guardadas
+  no aparelho.</p>
 
   <h2>5. Conexões que não enviam seus dados</h2>
   <p>Mesmo sem servidor, o app pode acessar a internet nestes casos. Nenhum deles envia dados seus; como em
